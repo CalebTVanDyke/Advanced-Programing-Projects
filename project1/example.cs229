@@ -1,0 +1,13 @@
+CS229
+# A really short sound to illustrate this file format
+Samples 4
+# We are doing something bizarre with the channels?
+Channels 3
+BitDepth 8
+SampleRate 44100
+# From here on things are more rigid
+StartData
+0 -127 127
+10 45 -103
+20 83 -4
+30 0 99

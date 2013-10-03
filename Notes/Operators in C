@@ -1,0 +1,145 @@
+Operators in C
+
+Close to java
+
+Compasons:
+
+	> < >= <= == !=
+
+	Doesnot return a boolean
+	Returns and int
+	!= 0 if true
+	== 0 if false
+
+
+Arithmatic:
+
+	+ - / * %
+
+Logic:
+
+	&& - and
+
+		operands are guaranteed to be evaluated in order and will "short circuit"
+
+		will stop whenever statement is proven be false
+
+	|| - or
+
+	! - not
+
+Bitwise operators:
+
+		- may be applied to any integer type
+		- operate on the binary representation underneath
+	    	(imagine your integer as an array of bits. Like you would write it on paper in binary)
+
+		- negatives - will be arch dependent
+	~  : one's complement(flip all bits)
+		unary, like '-'
+
+	&  : bitwise AND
+
+	|  : bitwise OR
+
+	^  : bitwise XOR
+
+	<< : left shift
+		 x << n : left shift the array of bits for x, by n places
+		 (equivalent to multiply by 2^n)
+
+	<< : right shift
+		 x << n : right shift the array of bits for x by n places
+		 (for unsigned, equivalent to "divide by 2^n")
+
+		 take care when right-shifting negatives
+
+Fun bit examples:
+
+	unsigned char x = 0xA6 /* 10100110 */
+	unsigned char y = 0x28 /* 00101000 */
+
+	~x : 01011001 or 0x59
+	x & y : 00100000 or 0x20
+	x | y : 10101110 or 0xAE
+	x ^ y : 10001110 or 0x8E
+
+	x << 3 : 00110000
+
+Fun example with bits:
+
+	Let's use an unsigned int x to store an array of 32 bits
+
+	How do I set the array to all 0s?
+
+		x = 0;
+
+	How do I set the array to all 1s?
+
+		x = 0xffffffff;
+		x = ~0;
+
+	How to tell if bit 'i' is set?
+
+	if(.....){
+		/** runs iff ith bit is set */
+	}
+	if( x & something with ith bit set )
+
+	if ( x & ( 0x01 << i) != 0) ... 
+
+How to set the ith bit in x?
+
+	x = x | 0x01 << 1;
+
+How to clear the ith bit?
+
+	x = x & ~(0x01 << i)
+
+C programmers do this stuff all the time
+
+Made up but realistic example:
+
+	"Prinat a database but select who we print"
+
+#define STUDENTS_DBPRINT 	0x0001
+#define TAS_DBPRINT 		0x0002
+#define INSTRUCTOR_DBPRINT 	0x0004
+
+void printDatabase(FILE* file, unsigned flags);
+
+printDatabase(stdout, TAS_DBPRINT | INSTRUCTOR_DBPRINT);
+
+Assignments:
+
+	= : assignment operator 
+		
+		left side: lvalue - place we are allowed to store something
+
+		right side: any expression
+
+
+Bizarre stuff about = in C;
+
+(1) lvalue = expr
+
+	is an expression equal to the thing we assign
+
+	z = 4 + (y = 2)
+
+	Legal C code that people will write all the time
+
+Conditional Operator
+
+ ? :
+
+ a ? b : c
+
+ if(a)
+ 	b
+ else
+ 	c
+
+ max  = (a[i] > max) ? a[i] : max
+
+
