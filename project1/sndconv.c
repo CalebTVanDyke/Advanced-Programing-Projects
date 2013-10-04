@@ -65,15 +65,13 @@ int main(int argc, char const *argv[])
 					}
 					else if(argv[i][j] == 'a'){
 						if(toCS229){
-							fprintf(stderr, "-a and -c can not both be specified\n");
-							return -1;
+							toCS229 = 0;
 						}
 						toAIFF = 1;
 					}
 					else if(argv[i][j] == 'c'){
 						if(toAIFF){
-							fprintf(stderr, "-a and -c can not both be specified\n");
-							return -1;
+							toAIFF = 1;
 						}
 						toCS229 = 1;
 					}
@@ -134,10 +132,9 @@ void showHelp(){
 	printf("sndconv [-1ach]\n\n");
 	printf("Options:\n");
 	printf("   -1     program will prompt you to enter the input file and output file name\n\n");
-	printf("   -a     forces output to be in AIFF format.  Cannot be used with -c\n\n");
-	printf("   -c     forces output to be in CS229 format. Cannot be used with -a\n\n");
+	printf("   -a     forces output to be in AIFF format\n\n");
+	printf("   -c     forces output to be in CS229 format\n\n");
 	printf("   -h     help: information on how to use the program\n\n");
 	printf("Default:\n");
-	printf("   If -1 is no specified input will be stdin and output will be stdout\n");
 	printf("   If -a or -c are not specified then output will be in the opposite form of the input\n");
 }
