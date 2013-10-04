@@ -124,7 +124,7 @@ int main(int argc, char const *argv[])
 }
 
 void showHelp(){
-		printf("sndconv\n");
+	printf("sndconv\n");
 	int i;
 	for (i = 0; i < 60; ++i){
 		printf("-");

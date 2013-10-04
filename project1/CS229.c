@@ -176,3 +176,19 @@ void convertCS229toAIFF(FILE* outfile, FILE* infile){
 
 	processStartData(outfile, infile, &data); 
 }
+
+File_Data CS229toTemp(FILE* outfile, FILE* infile, int addHeader){
+	File_Data data;
+	strncpy(data.format, "CS229", 5);
+	processHeader(infile, &data);
+	if(addHeader){
+		fprintf(outfile, "%s\n", "CS229");
+		fprintf(outfile, "SampleRate %d\n", data.sampleRate);
+		fprintf(outfile, "Channels %d\n", data.channels);
+		fprintf(outfile, "BitDepth %d\n", data.bitDepth);
+		fprintf(outfile, "Samples %d\n", data.samples);
+		fprintf(outfile, "StartData\n");
+	}
+	rewrite(outfile, infile);
+	return data;
+}

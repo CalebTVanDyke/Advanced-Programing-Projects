@@ -184,30 +184,37 @@ File_Data processAIFF(FILE *outfile, FILE* infile){
 		data.success = 1;
 	return data;
 }
+void writeHeader(FILE* outfile, File_Data data){
 
-void convertAIFFtoCS229(FILE* outfile, FILE* infile, char * infilepath){
-	File_Data data = processAIFF(outfile, infile);
-	if(data.success == 0){
-		printf("Failed to convert file\n");
-	}
 	fprintf(outfile, "%s\n", "CS229");
 	fprintf(outfile, "SampleRate %d\n", data.sampleRate);
 	fprintf(outfile, "Channels %d\n", data.channels);
 	fprintf(outfile, "BitDepth %d\n", data.bitDepth);
 	fprintf(outfile, "Samples %d\n", data.samples);
 	fprintf(outfile, "StartData\n");
+
+}
+
+void convertAIFFtoCS229(FILE* outfile, FILE* infile, char * infilepath){
+	File_Data data = processAIFF(outfile, infile);
+	if(data.success == 0){
+		printf("Failed to convert file\n");
+	}
+	writeHeader(outfile, data);
 	processSSND(outfile, infilepath, data);
 }
 
-File_Data soundToTemp(FILE* outfile, FILE* infile, char const * infilepath){
+File_Data AIFFtoTemp(FILE* outfile, FILE* infile, char * infilepath, int addHeader){
 
-	fgetc(infile);
-	fgetc(infile);
-	fgetc(infile);
-	fgetc(infile);
 
 	File_Data data = processAIFF(outfile, infile);
+
+	if(addHeader){
+		writeHeader(outfile, data);
+	}
+
 	processSSND(outfile, infilepath, data);
 	return data;
 }
+
 
