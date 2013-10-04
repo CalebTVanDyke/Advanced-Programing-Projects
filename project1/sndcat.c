@@ -63,7 +63,6 @@ int main(int argc, char *argv[])
 				foundFile = 1;
 				orig = soundToTemp(sampleData, inf, argv[i], WRITE_HEADER);
 				strncpy(firstFile, orig.format, 5);
-				fprintf(stderr, "%s\n", orig.format);
 			} else {
 				next = soundToTemp(sampleData, inf, argv[i], NO_HEADER);
 				if(next.channels != orig.channels){

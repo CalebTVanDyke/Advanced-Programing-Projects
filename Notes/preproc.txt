@@ -1,0 +1,86 @@
+More Fun with Preprocessor
+--------------------------
+
+Weknow:
+
+	#define FOO 3.14159265
+
+	#include "bar.h"
+
+Other fun things:
+
+	#ifdef FOOBAR
+
+		/* Normal c code here */
+
+	#endif
+
+If somewhere before here the symbol "FOOBAR" was defined using
+#define FOOBAR
+
+Like a conditional comment
+
+You can have an "#else" part
+
+void sort(int* A, int n){
+	
+	#ifdef QUICKSORT
+		/* code for qsort here */
+	#else
+		/* code for selectionsort here */
+}
+
+Also there's #ifndef FOOBAR works similialy to #ifdef but with a NOT
+
+gcc -DFOOBAR asdf.c
+
+This will define FOOBAR in asdf.c
+
+
+
+MACROS
+------
+
+#define PI 3.14
+
+#define MAX(X,Y) X> ? X : Y
+
+#define ABS(X) X>0 ? X : -X
+
+#define MYPRINT(X) printf("here's my stuff %x", X)
+
+#define ERROR(X) fprintf(stderr, X)
+
+int foobar(int z)
+{
+	return MAX(z, 42);	
+}
+
+Fun Question:
+
+foo.h:
+
+	#include "bar.h"
+
+	/* stuff */
+
+bar.h:
+
+	#include "foo.h"
+
+	/* stuff */
+
+Super easy way to fix this we should all be doing. all the time. no matter what because it's the right thing to do and it's easy
+
+INCLUDE GUARD
+-------------
+
+foo.h:
+-----------------------------------------
+
+#ifndef FOO_H
+#define FOO_H
+
+/* Entire header file goes in here */
+
+#endif
