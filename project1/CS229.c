@@ -3,60 +3,13 @@
 #include <stdlib.h>
 #include <math.h>
 #include "util.h"
+#include "AIFF.h"
+#include "CS229.h"
 
 #define MAX_LINE_LENGTH 200
 
 int foundStartData = 0;
 
-int processStartData(FILE* outfile, FILE* infile ,File_Data * data){
-	if(foundStartData = 0){
-		data->bitDepth = -1;
-		return 1;
-	}
-	char line[MAX_LINE_LENGTH];
-	int numSam = 0;
-	while(fgets(line, MAX_LINE_LENGTH, infile)){
-		if(line[0] == '\n' || line[0] == '#'){
-			continue;
-		}
-		int sample = 0;
-		int i;
-		char * sampleStr = NULL;
-		char bytes[4];
-		for(i = 0, sampleStr = strtok(line, " "); i < data->channels; i++){
-			sscanf(sampleStr, "%d", &sample);
-			sampleStr = strtok(NULL, " ");
-			if(data->bitDepth == -1 || sample > MAX_SAMPLE(data->bitDepth) || sample < MIN_SAMPLE(data->bitDepth)){
-				data->success = 0;
-				data->bitDepth = -1;
-				return;
-			}
-			if(outfile){
-				memcpy(bytes, (char*)&sample, 4);
-				flipBytes(bytes, 4);
-				if(data->bitDepth == 8){
-					fwrite(&bytes[3], 1, 1, outfile);
-				} 
-				else if(data->bitDepth == 16){
-					fwrite(&bytes[2], 2, 1, outfile);
-				} 
-				else if(data->bitDepth == 32){
-					fwrite(&bytes, 4, 1, outfile);
-				}
-			}
-		}
-		numSam++;
-	}
-	if(data->samples < 0){
-		data->samples = numSam;
-	} else {
-		if(data->samples != numSam){
-			data->bitDepth = -1;
-			return 1;
-		}
-	}
-	return 0;
-}
 
 void processHeader(FILE* file , File_Data * data){
 	char line[MAX_LINE_LENGTH];
@@ -70,10 +23,10 @@ void processHeader(FILE* file , File_Data * data){
 		else if(strncmp(line, "Channels", 8) == 0){
 			sscanf(line, "Channels %d", &data->channels);
 		}
-		else if(strncmp(line, "SampleRate", strlen("SampleRate")) == 0){
+		else if(strncmp(line, "SampleRate", strlen("SampleRate\0")) == 0){
 			sscanf(line, "SampleRate %d", &data->sampleRate);
 		}
-		else if(strncmp(line, "BitDepth", strlen("BitDepth")) == 0){
+		else if(strncmp(line, "BitDepth", strlen("BitDepth\0")) == 0){
 			sscanf(line, "BitDepth %d", &data->bitDepth);
 		}
 		if(strncmp(line, "StartData", 7) == 0){
@@ -98,7 +51,12 @@ File_Data processCS229(FILE *file){
 	data.sampleRate = -1;
 	data.bitDepth = -1;
 	processHeader(file, &data);
-	processStartData(NULL, file, &data);
+	int ** samps = getSamplesCS229(file, &data);
+	int i;
+	for(i = 0; i < data.samples; i++){
+		free(samps[i]);
+	}
+	/*free(samps);*/
 	if(data.sampleRate < 0 || data.bitDepth < 0 || data.channels < 0 || data.channels > 32 || (data.bitDepth != 8 && data.bitDepth != 16 && data.bitDepth != 32)){
 		data.success = 0;
 	} else {
@@ -106,70 +64,6 @@ File_Data processCS229(FILE *file){
 		strcpy(data.duration, findDuration(data.sampleRate, data.channels, data.samples, data.duration));
 	}
 	return data;
-}
-
-void writeHeaderAIFF(FILE* outfile, File_Data data){
-	int fileSize = 20 + 18 + data.samples * data.bitDepth;
-
-	char bytes[4] = "FORM";
-	fwrite(bytes, sizeof(bytes), 1, outfile);
-
-	memcpy(bytes, (char*)&fileSize, 4);
-	flipBytes(bytes, 4);
-	fwrite(bytes, sizeof(bytes), 1, outfile);
-
-	strncpy(bytes, "AIFF", 4);
-	fwrite(bytes, sizeof(bytes), 1, outfile);
-	
-
-	strncpy(bytes, "COMM", 4);
-	fwrite(bytes, sizeof(bytes), 1, outfile);
-
-	fileSize = 18;
-	memcpy(bytes, (char*)&fileSize, 4);
-	flipBytes(bytes, 4);
-	fwrite(bytes, sizeof(bytes), 1, outfile);
-
-	memcpy(bytes, (char*)&data.channels, 2);
-	flipBytes(bytes, 2);
-	fwrite(bytes, sizeof(bytes)/2, 1, outfile);
-
-	memcpy(bytes, (char*)&data.samples, 4);
-	flipBytes(bytes, 4);
-	fwrite(bytes, sizeof(bytes), 1, outfile);
-
-	memcpy(bytes, (char*)&data.bitDepth, 2);
-	flipBytes(bytes, 2);
-	fwrite(bytes, sizeof(bytes)/2, 1, outfile);
-
-	char buff[10];
-	long double sr = (long double)data.sampleRate;
-	memcpy(buff, (char*)&sr, 10);
-	flipBytes(buff, 10);
-	fwrite(buff, sizeof(buff), 1, outfile);
-}\
-void writeSoundToAIFF(FILE* outfile, FILE* infile, File_Data data){
-
-	char bytes[4];
-
-	strncpy(bytes, "SSND", 4);
-	fwrite(bytes, sizeof(bytes), 1, outfile);
-
-	int fileSize = data.samples * (data.bitDepth / 8) + 8;
-	memcpy(bytes, (char*)&fileSize, 4);
-	flipBytes(bytes, 4);
-	fwrite(bytes, sizeof(bytes), 1, outfile);
-
-	fileSize = 0;
-	memcpy(bytes, (char*)&fileSize, 4);
-	flipBytes(bytes, 4);
-	fwrite(bytes, sizeof(bytes), 1, outfile);
-
-	fileSize = 0;
-	memcpy(bytes, (char*)&fileSize, 4);
-	flipBytes(bytes, 4);
-	fwrite(bytes, sizeof(bytes), 1, outfile);
-	processStartData(outfile, infile, &data);
 }
 
 void convertCS229toAIFF(FILE* outfile, FILE* infile){
@@ -180,22 +74,113 @@ void convertCS229toAIFF(FILE* outfile, FILE* infile){
 		printf("File failed to convert\n");
 		return;
 	}
+	int **samples = getSamplesCS229(infile, &data);
 	writeHeaderAIFF(outfile, data); 
-	writeSoundToAIFF(outfile, infile, data);
+	setupSoundAIFF(outfile, infile, data);
+	writeSamplesAIFF(outfile, samples, data, NULL, 0);
 }
 
-File_Data CS229toTemp(FILE* outfile, FILE* infile, int addHeader){
+File_Data CS229toTemp(FILE* outfile, FILE* infile){
 	File_Data data;
 	strncpy(data.format, "CS229", 5);
 	processHeader(infile, &data);
-	if(addHeader){
-		fprintf(outfile, "%s\n", "CS229");
-		fprintf(outfile, "SampleRate %d\n", data.sampleRate);
-		fprintf(outfile, "Channels %d\n", data.channels);
-		fprintf(outfile, "BitDepth %d\n", data.bitDepth);
-		fprintf(outfile, "Samples %d\n", data.samples);
-		fprintf(outfile, "StartData\n");
-	}
 	rewrite(outfile, infile);
 	return data;
+}
+int writeSamplesCS229(FILE* outf, int** samps, File_Data fileData, highlow_t* highlow, int size){
+	int i, j, k;
+	for(i = 0; i < fileData.samples; i++){
+		int toContinue = 0;
+		for(j = 0; j < size; j++){
+			if(i >= highlow[j].low  && i <= highlow[j].high){
+				toContinue = 1;
+				break;
+			}
+		}
+		if(toContinue){
+			toContinue = 0;
+			continue;
+		}
+		for(j = 0; j < fileData.channels; j++){
+			fprintf(outf, "%d", samps[i][j]);
+			if(j + 1 != fileData.channels){
+				fprintf(outf, " ");
+			}
+		}
+		if(j == fileData.channels);
+			fprintf(outf, "\n");
+	}
+	for(i = 0; i < fileData.samples; i++){
+		free(samps[i]);
+	}
+	/*free(samps);*/
+}
+void writeHeaderCS229(FILE* outfile, File_Data data){
+	fprintf(outfile, "%s\n", "CS229");
+	fprintf(outfile, "SampleRate %d\n", data.sampleRate);
+	fprintf(outfile, "Channels %d\n", data.channels);
+	fprintf(outfile, "BitDepth %d\n", data.bitDepth);
+	fprintf(outfile, "Samples %d\n", data.samples);
+	fprintf(outfile, "StartData\n");
+}
+int ** getSamplesCS229(FILE* inf, File_Data *data){
+	int **samples = NULL;
+	long MAX = 1000;
+	if(data->samples > 0){
+		samples = malloc(data->samples * sizeof(int*));
+		MAX = data->samples;
+	}else {
+		samples = malloc(MAX * sizeof(int*));
+	}
+	int i;
+	for(i = 0; i < MAX; i++){
+		samples[i] = malloc(data->channels * sizeof(int*));
+	}
+	int j;
+	i = 0;
+	while(!feof(inf)){
+		if(i >= MAX){
+			MAX += MAX;
+			realloc(samples, MAX * sizeof(int*));
+		}
+		for(j = 0; j < data->channels; j++){
+			fscanf(inf, "%d " , &samples[i][j]);
+			if(samples[i][j] < MIN_SAMPLE(data->bitDepth) || samples[i][j] > MAX_SAMPLE(data->bitDepth)){
+				data->bitDepth = -1;
+			}
+		}
+		i++;
+	}
+	if(i != data->samples){
+		realloc(samples, i  * sizeof(int*));
+		data->samples = i;
+	}
+	return samples;
+}
+void trimCS229(highlow_t *highlow, int size){
+
+	File_Data data;
+	processHeader(stdin, &data);
+
+	int **samples = getSamplesCS229(stdin, &data);
+
+	int exclude = countHighLow(data.samples, highlow, size);
+	data.samples -= exclude;
+	writeHeaderCS229(stdout, data);
+	data.samples += exclude;
+	writeSamplesCS229(stdout, samples, data, highlow, size);
+}
+int showCS229(int width, int zoom, int chan){
+	File_Data data;
+	processHeader(stdin, &data);
+
+	int ** samples = getSamplesCS229(stdin, &data);
+
+	showSamples(data, samples, width, zoom, chan);
+
+	int i;
+	for(i = 0; i < data.samples; i++){
+		free(samples[i]);
+	}
+
 }

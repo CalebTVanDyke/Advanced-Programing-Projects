@@ -3,15 +3,10 @@
 
 #include "stdio.h"
 
-char* getFileType(FILE* inf, char * format);
-char* toLittleEndian(char* rev, int size);
-char* findDuration(int sampleRate, int channels, int samples, char timeStr[]);
-int trim(char* fileName, int size);
-
 #define MAX_SAMPLE(X) pow(2, (X)-1) - 1
 #define MIN_SAMPLE(X) pow(-2, (X) - 1)
 
-typdef struct {
+typedef struct {
 	int low;
 	int high;
 } highlow_t;
@@ -42,5 +37,13 @@ typedef struct {
 	int success;
 	int bitDepth;
 } File_Data;
+
+char* getFileType(FILE* inf, char * format);
+char* toLittleEndian(char* rev, int size);
+char* findDuration(int sampleRate, int channels, int samples, char timeStr[]);
+int trim(char* fileName, int size);
+int countHighLow(int samples, highlow_t *highlow, int size);
+void showSamples(File_Data data, int** samples, int width, int zoom, int chan);
+
 
 #endif

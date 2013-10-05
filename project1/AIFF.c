@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include "CS229.h"
+#include "AIFF.h"
+#include <math.h>
 
 fpos_t SSNDLocation;
 int foundSoundData = 1;
@@ -51,9 +53,9 @@ CommonChunk processComm(FILE* file){
 	}
 	return comm;
 }
-int** getSamples(FILE* outf, char * infilepath, File_Data fileData){
+int** getSamplesAIFF(char * infilepath, File_Data fileData){
 	
-	int ** ssndData = malloc(fileData.samples * (fileData.bitDepth/8)*sizeof(int*));
+	int ** ssndData = malloc(fileData.samples*sizeof(int*));
 	int i, j, k;	
 	for(i = 0; i < fileData.samples; i++){
 		ssndData[i] = malloc(fileData.channels*sizeof(int));
@@ -96,7 +98,7 @@ int** getSamples(FILE* outf, char * infilepath, File_Data fileData){
 	flipBytes(buff, 4);
 	char sample[4];
 	data.blockSize = *((int*)buff);
-	for (i = 0 ; i < (data.chunkSize - 8) / (fileData.bitDepth / 8); i++){
+	for (i = 0 ; i < fileData.samples; i++){
 		for(k = 0; k < fileData.channels; k++){
 			for (j = 0; j < 4; j++){
 				sample[j] = 0;
@@ -107,13 +109,12 @@ int** getSamples(FILE* outf, char * infilepath, File_Data fileData){
 			flipBytes(sample, fileData.bitDepth / 8);
 			if(fileData.bitDepth == 8){
 				ssndData[i][k] = (int)sample[0];
-				printf("%d\n", sample[0]);
 			}
 			else if(fileData.bitDepth == 16){
 				ssndData[i][k] = (int)(*((short*)sample));
 			}
 			else if(fileData.bitDepth == 32){
-				ssndData[i][k] = *((int*)sample);
+				ssndData[i][k] = (int)(*((int*)sample));
 			}
 		}
 	}
@@ -121,37 +122,46 @@ int** getSamples(FILE* outf, char * infilepath, File_Data fileData){
 	return ssndData;
 }
 
-int processSSNDtrim(FILE* outf, char * infilepath, File_Data fileData, int low, int high){
-
-	int **samples = getSamples(outf, infilepath, fileData);
+int writeSamplesAIFF(FILE* outf, int **samples, File_Data data, highlow_t *highlow, int size){
 	int i, j, k;
-	for(i = 0; i < fileData.samples; i++){
-		for(j = 0; j < fileData.channels; j++){
-			if(samples[i][j] >= low && samples[i][j] <= high){
+	char bytes[4];
+	for(i = 0; i < data.samples; i++){
+		int toContinue = 0;
+		for(j = 0; j < size; j++){
+			if(i >= highlow[j].low  && i <= highlow[j].high){
+				toContinue = 1;
 				break;
 			}
-			fprintf(outf, "%d", samples[i][j]);
-			if(j + 1 != fileData.channels){
-				fprintf(outf, " ");
+		}
+		if(toContinue){
+			toContinue = 0;
+			continue;
+		}
+		for(j = 0; j < data.channels; j++){
+			int x = samples[i][j];
+			memcpy(bytes, &x, 4);
+			flipBytes(bytes, 4);
+			if(data.bitDepth == 8){
+				fwrite(&bytes[3], 1, 1, outf);
+			} 
+			else if(data.bitDepth == 16){
+				fwrite(&bytes[2], 2, 1, outf);
+			} 
+			else if(data.bitDepth == 32){
+				fwrite(&bytes, 4, 1, outf);
 			}
 		}
-		if(j == fileData.channels)
-			fprintf(outf, "\n");
 	}
-	for(i = 0; i < fileData.samples; i++){
+	for(i = 0; i < data.samples; i++){
 		free(samples[i]);
 	}
-	free(samples);
-
+	/*free(samples);*/
 }
 
 int processSSND(FILE* outf, char * infilepath, File_Data fileData){
 
-	int low, high;
-
-	high = MAX_SAMPLE(fileData.bitDepth) + 1;
-	low = high;
-	processSSNDtrim(outf, infilepath, fileData, low, high);
+	int **samples = getSamplesAIFF(infilepath, fileData);
+	writeSamplesCS229(outf, samples, fileData, NULL, 0);
 
 }
 
@@ -220,45 +230,114 @@ File_Data processAIFF(FILE *outfile, FILE* infile){
 		data.success = 1;
 	return data;
 }
-void writeHeader(FILE* outfile, File_Data data){
-
-	fprintf(outfile, "%s\n", "CS229");
-	fprintf(outfile, "SampleRate %d\n", data.sampleRate);
-	fprintf(outfile, "Channels %d\n", data.channels);
-	fprintf(outfile, "BitDepth %d\n", data.bitDepth);
-	fprintf(outfile, "Samples %d\n", data.samples);
-	fprintf(outfile, "StartData\n");
-
-}
 
 void convertAIFFtoCS229(FILE* outfile, FILE* infile, char * infilepath){
 	File_Data data = processAIFF(outfile, infile);
 	if(data.success == 0){
 		printf("Failed to convert file\n");
 	}
-	writeHeader(outfile, data);
+	writeHeaderCS229(outfile, data);
 	processSSND(outfile, infilepath, data);
 }
 
-File_Data AIFFtoTemp(FILE* outfile, FILE* infile, char * infilepath, int addHeader){
+File_Data AIFFtoTemp(FILE* outfile, FILE* infile, char * infilepath){
 
 
 	File_Data data = processAIFF(outfile, infile);
-
-	if(addHeader){
-		writeHeader(outfile, data);
-	}
 
 	processSSND(outfile, infilepath, data);
 	return data;
 }
 
-File_Data trimAIFF(int low, int high){
+File_Data trimAIFF(highlow_t* highlow, int size){
 
 	File_Data data = processAIFF(stdout, stdin);
 
-	writeHeaderAIFF(stdout, data);
-	processSSNDtrim(stdout, "STDIN", data, low, high);
-}
+	int **samples = getSamplesAIFF("STDIN", data);
 
+	int exclude = countHighLow(data.samples, highlow, size);
+	data.samples -= exclude;
+	fprintf(stderr, "%d\n", exclude);
+	writeHeaderAIFF(stdout, data);
+	data.samples += exclude;
+
+	setupSoundAIFF(stdout, stdin, data);
+
+	writeSamplesAIFF(stdout, samples, data, highlow, size);
+}
+void setupSoundAIFF(FILE* outfile, FILE* infile, File_Data data){
+
+	char bytes[4];
+
+	strncpy(bytes, "SSND", 4);
+	fwrite(bytes, sizeof(bytes), 1, outfile);
+
+	int fileSize = data.samples * (data.bitDepth / 8) * data.channels + 8;
+	memcpy(bytes, (char*)&fileSize, 4);
+	flipBytes(bytes, 4);
+	fwrite(bytes, sizeof(bytes), 1, outfile);
+
+	fileSize = 0;
+	memcpy(bytes, (char*)&fileSize, 4);
+	flipBytes(bytes, 4);
+	fwrite(bytes, sizeof(bytes), 1, outfile);
+
+	fileSize = 0;
+	memcpy(bytes, (char*)&fileSize, 4);
+	flipBytes(bytes, 4);
+	fwrite(bytes, sizeof(bytes), 1, outfile);
+}
+void writeHeaderAIFF(FILE* outfile, File_Data data){
+	int fileSize = 30 + data.samples * (data.bitDepth/8) * data.channels;
+
+	char bytes[4] = "FORM";
+	fwrite(bytes, sizeof(bytes), 1, outfile);
+
+	memcpy(bytes, (char*)&fileSize, 4);
+	flipBytes(bytes, 4);
+	fwrite(bytes, sizeof(bytes), 1, outfile);
+
+	strncpy(bytes, "AIFF", 4);
+	fwrite(bytes, sizeof(bytes), 1, outfile);
+	
+
+	strncpy(bytes, "COMM", 4);
+	fwrite(bytes, sizeof(bytes), 1, outfile);
+
+	fileSize = 18;
+	memcpy(bytes, (char*)&fileSize, 4);
+	flipBytes(bytes, 4);
+	fwrite(bytes, sizeof(bytes), 1, outfile);
+
+	memcpy(bytes, (char*)&data.channels, 2);
+	flipBytes(bytes, 2);
+	fwrite(bytes, sizeof(bytes)/2, 1, outfile);
+
+	memcpy(bytes, (char*)&data.samples, 4);
+	flipBytes(bytes, 4);
+	fwrite(bytes, sizeof(bytes), 1, outfile);
+
+	memcpy(bytes, (char*)&data.bitDepth, 2);
+	flipBytes(bytes, 2);
+	fwrite(bytes, sizeof(bytes)/2, 1, outfile);
+
+	char buff[10];
+	long double sr = (long double)data.sampleRate;
+	memcpy(buff, (char*)&sr, 10);
+	flipBytes(buff, 10);
+	fwrite(buff, sizeof(buff), 1, outfile);
+}
+int showAIFF(int width, int zoom, int chan){
+	File_Data data = processAIFF(stdout, stdin);
+
+	int ** samples = getSamplesAIFF("STDIN", data);
+
+	showSamples(data, samples, width, zoom, chan);
+
+	int i;
+	for(i = 0; i < data.samples; i++){
+		free(samples[i]);
+	}
+
+}
 

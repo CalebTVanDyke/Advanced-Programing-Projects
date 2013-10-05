@@ -9,7 +9,7 @@
 #define WRITE_HEADER 1
 #define NO_HEADER 0
 
-File_Data soundToTemp(FILE* soundFile, FILE* infile, char * filePath, int addHeader);
+File_Data soundToTemp(FILE* soundFile, FILE* infile, char * filePath);
 void displayHelp();
 
 int main(int argc, char *argv[])
@@ -22,6 +22,7 @@ int main(int argc, char *argv[])
 	int foundFile = 0;
 	int toAIFF = 0;
 	int toCS229 = 0;
+	int samples = 0;
 	char firstFile[5];
 
 	if (argc <= 1){
@@ -58,22 +59,27 @@ int main(int argc, char *argv[])
 			}
 			if(!foundFile){
 				foundFile = 1;
-				orig = soundToTemp(sampleData, inf, argv[i], WRITE_HEADER);
+				orig = soundToTemp(sampleData, inf, argv[i]);
+				samples += orig.samples;
 				strncpy(firstFile, orig.format, 5);
 			} else {
-				next = soundToTemp(sampleData, inf, argv[i], NO_HEADER);
+				next = soundToTemp(sampleData, inf, argv[i]);
+				samples += next.samples;
 				if(next.channels != orig.channels){
 					fprintf(stderr, "File %s did not have the same channels as the first file.\n", argv[i]);
+					return -1;
 				}
 				if(next.bitDepth != orig.bitDepth){
 					fprintf(stderr, "File %s did not have the same bit depth as the first file.\n", argv[i]);
+					return -1;
 				}
 			}
 		}
 	}
-
+	orig.samples = samples;
 	fclose(sampleData);
 	sampleData = fopen(tempFileName, "r");
+	writeHeaderCS229(stdout, orig);
 	if(toAIFF){
 		convertCS229toAIFF(stdout, sampleData);
 	}
@@ -94,10 +100,10 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-File_Data soundToTemp(FILE* soundFile, FILE* infile, char * filePath, int addHeader){
+File_Data soundToTemp(FILE* soundFile, FILE* infile, char * filePath){
 
 	File_Data data;
-
+	int samples = 0;
 	char format[5];
 	int i;
 	for(i = 0; i < 4; i++){
@@ -107,12 +113,12 @@ File_Data soundToTemp(FILE* soundFile, FILE* infile, char * filePath, int addHea
 		}
 	}
 	if(strncmp(format, "FORM", 4) == 0){
-		data = AIFFtoTemp(soundFile, infile, filePath, addHeader);
+		data = AIFFtoTemp(soundFile, infile, filePath);
 	} else {
 		format[4] = fgetc(infile);
 	}
 	if(strncmp(format, "CS229", 5) == 0){
-		data = CS229toTemp(soundFile, infile, addHeader);
+		data = CS229toTemp(soundFile, infile);
 	}
 
 	return data;
