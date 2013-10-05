@@ -141,7 +141,7 @@ int ** getSamplesCS229(FILE* inf, File_Data *data){
 	while(!feof(inf)){
 		if(i >= MAX){
 			MAX += MAX;
-			realloc(samples, MAX * sizeof(int*));
+			samples = realloc(samples, MAX * sizeof(int*));
 		}
 		for(j = 0; j < data->channels; j++){
 			fscanf(inf, "%d " , &samples[i][j]);
@@ -152,7 +152,7 @@ int ** getSamplesCS229(FILE* inf, File_Data *data){
 		i++;
 	}
 	if(i != data->samples){
-		realloc(samples, i  * sizeof(int*));
+		samples = realloc(samples, i  * sizeof(int*));
 		data->samples = i;
 	}
 	return samples;

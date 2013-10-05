@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #include "util.h"
-#include "AIFF.H"
+#include "AIFF.h"
 #include "CS229.h"
 
 
