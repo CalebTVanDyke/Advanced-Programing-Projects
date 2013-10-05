@@ -122,7 +122,7 @@ void showSamples(File_Data data, int** samples, int width, int zoom, int chan){
 			}
 			int samp = samples[i][j];
 
-			int size = round((abs(samp)*half)/((double)MAX));
+			int size = (int)lround((abs(samp)*half)/((double)MAX));
 			for(k = half; k > 0; k--){
 				if(samp < 0 && k <= size){
 					printf("-");
