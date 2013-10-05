@@ -16,7 +16,6 @@ void getFileInfo(char * path);
 
 int main(int argc, char const *argv[])
 {
-
 	int help = 0;
 	int part1 = 0;
 	int success = 0;
@@ -78,20 +77,15 @@ void getFileInfo(char * filePath){
 		fprintf(stderr, "%s could not be located.\n", filePath);
 		return;
 	}
-	
-	for(i = 0; i < 4; i++){
-		format[i] = fgetc(file);
-		if(format[i] == EOF){
-			break;
-		}
-	}
+	getFileType(file, format);
 	if(strncmp(format, "FORM", 4) == 0){
 		data = processAIFF(NULL ,file);
-	} else {
-		format[4] = fgetc(file);
 	}
-	if(strncmp(format, "CS229", 5) == 0){
+	else if(strncmp(format, "CS229", 5) == 0){
 		data = processCS229(file);
+	}
+	else{
+		fprintf(stderr, "%s was not of the correct file type.\n", filePath);
 	}
 	if(!data.success){
 		fprintf(stderr, "File was not in the correct format\n");

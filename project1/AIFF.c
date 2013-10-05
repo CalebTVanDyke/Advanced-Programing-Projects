@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
+#include "CS229.h"
 
 fpos_t SSNDLocation;
 int foundSoundData = 1;
@@ -49,11 +51,17 @@ CommonChunk processComm(FILE* file){
 	}
 	return comm;
 }
+int** getSamples(FILE* outf, char * infilepath, File_Data fileData){
+	
+	int ** ssndData = malloc(fileData.samples * (fileData.bitDepth/8)*sizeof(int*));
+	int i, j, k;	
+	for(i = 0; i < fileData.samples; i++){
+		ssndData[i] = malloc(fileData.channels*sizeof(int));
+	}
 
-int processSSND(FILE* outf, char * infilepath, File_Data fileData){
 	if(foundSoundData){
-		fprintf(stderr, "Error reading sound data chunk.\n");
-		return -1;
+		fprintf(stderr, "Sound data chunk was not found.\n");
+		return NULL;
 	}
 	FILE* inf = NULL;
 	if(strncmp("STDIN", infilepath, 5) == 0){
@@ -63,12 +71,9 @@ int processSSND(FILE* outf, char * infilepath, File_Data fileData){
 	}
 	if(fsetpos(inf, &SSNDLocation)){
 		fprintf(stderr, "Error reading sound data chunk.\n");
-		return -1;
+		return NULL;
 	}
 	SoundDataChunk data;
-	int i;
-	int chan = 0;
-	chan = fileData.channels;
 
 	char buff[4];
 
@@ -89,34 +94,65 @@ int processSSND(FILE* outf, char * infilepath, File_Data fileData){
 		buff[i] = fgetc(inf);
 	}
 	flipBytes(buff, 4);
+	char sample[4];
 	data.blockSize = *((int*)buff);
-	int count = 0;
-	int j = 0;
-	unsigned char sample[4];
 	for (i = 0 ; i < (data.chunkSize - 8) / (fileData.bitDepth / 8); i++){
-		for (j = 0; j < 4; j++){
-			sample[j] = 0;
-		}	
-		for (j = 0; j < fileData.bitDepth / 8; j++){
-			sample[j] = getc(inf);
-		}
-		flipBytes(sample, fileData.bitDepth / 8);
-		if(fileData.bitDepth == 8){
-			fprintf(outf, "%d", sample);
-		} 
-		else if(fileData.bitDepth == 16){
-			fprintf(outf, "%d", *((short*)sample));
-		} 
-		else if(fileData.bitDepth == 32){
-			fprintf(outf, "%d", *((int*)sample));
-		}
-		if((i + 1) % chan == 0){
-			fprintf(outf, "\n");
-		} else {
-			fprintf(outf, " ");
+		for(k = 0; k < fileData.channels; k++){
+			for (j = 0; j < 4; j++){
+				sample[j] = 0;
+			}	
+			for (j = 0; j < fileData.bitDepth / 8; j++){
+				sample[j] = getc(inf);
+			}
+			flipBytes(sample, fileData.bitDepth / 8);
+			if(fileData.bitDepth == 8){
+				ssndData[i][k] = (int)sample[0];
+				printf("%d\n", sample[0]);
+			}
+			else if(fileData.bitDepth == 16){
+				ssndData[i][k] = (int)(*((short*)sample));
+			}
+			else if(fileData.bitDepth == 32){
+				ssndData[i][k] = *((int*)sample);
+			}
 		}
 	}
 	fclose(inf);
+	return ssndData;
+}
+
+int processSSNDtrim(FILE* outf, char * infilepath, File_Data fileData, int low, int high){
+
+	int **samples = getSamples(outf, infilepath, fileData);
+	int i, j, k;
+	for(i = 0; i < fileData.samples; i++){
+		for(j = 0; j < fileData.channels; j++){
+			if(samples[i][j] >= low && samples[i][j] <= high){
+				break;
+			}
+			fprintf(outf, "%d", samples[i][j]);
+			if(j + 1 != fileData.channels){
+				fprintf(outf, " ");
+			}
+		}
+		if(j == fileData.channels)
+			fprintf(outf, "\n");
+	}
+	for(i = 0; i < fileData.samples; i++){
+		free(samples[i]);
+	}
+	free(samples);
+
+}
+
+int processSSND(FILE* outf, char * infilepath, File_Data fileData){
+
+	int low, high;
+
+	high = MAX_SAMPLE(fileData.bitDepth) + 1;
+	low = high;
+	processSSNDtrim(outf, infilepath, fileData, low, high);
+
 }
 
 File_Data processAIFF(FILE *outfile, FILE* infile){
@@ -215,6 +251,14 @@ File_Data AIFFtoTemp(FILE* outfile, FILE* infile, char * infilepath, int addHead
 
 	processSSND(outfile, infilepath, data);
 	return data;
+}
+
+File_Data trimAIFF(int low, int high){
+
+	File_Data data = processAIFF(stdout, stdin);
+
+	writeHeaderAIFF(stdout, data);
+	processSSNDtrim(stdout, "STDIN", data, low, high);
 }
 
 

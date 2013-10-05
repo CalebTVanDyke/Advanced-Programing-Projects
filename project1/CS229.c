@@ -26,7 +26,7 @@ int processStartData(FILE* outfile, FILE* infile ,File_Data * data){
 		for(i = 0, sampleStr = strtok(line, " "); i < data->channels; i++){
 			sscanf(sampleStr, "%d", &sample);
 			sampleStr = strtok(NULL, " ");
-			if(data->bitDepth == -1 || sample > pow(2, data->bitDepth-1) - 1 || sample < pow(-2, data->bitDepth - 1)){
+			if(data->bitDepth == -1 || sample > MAX_SAMPLE(data->bitDepth) || sample < MIN_SAMPLE(data->bitDepth)){
 				data->success = 0;
 				data->bitDepth = -1;
 				return;
@@ -108,30 +108,22 @@ File_Data processCS229(FILE *file){
 	return data;
 }
 
-
-void convertCS229toAIFF(FILE* outfile, FILE* infile){
-	char bytes[4];
-	char format[4] = "FORM";
-	fwrite(format, sizeof(format), 1, outfile);
-	File_Data data;
-	processHeader(infile, &data);
-
-	if(data.success == 0){
-		printf("File failed to convert\n");
-		return;
-	}
+void writeHeaderAIFF(FILE* outfile, File_Data data){
 	int fileSize = 20 + 18 + data.samples * data.bitDepth;
+
+	char bytes[4] = "FORM";
+	fwrite(bytes, sizeof(bytes), 1, outfile);
 
 	memcpy(bytes, (char*)&fileSize, 4);
 	flipBytes(bytes, 4);
 	fwrite(bytes, sizeof(bytes), 1, outfile);
 
-	strncpy(format, "AIFF", 4);
-	fwrite(format, sizeof(format), 1, outfile);
+	strncpy(bytes, "AIFF", 4);
+	fwrite(bytes, sizeof(bytes), 1, outfile);
 	
 
-	strncpy(format, "COMM", 4);
-	fwrite(format, sizeof(format), 1, outfile);
+	strncpy(bytes, "COMM", 4);
+	fwrite(bytes, sizeof(bytes), 1, outfile);
 
 	fileSize = 18;
 	memcpy(bytes, (char*)&fileSize, 4);
@@ -155,11 +147,15 @@ void convertCS229toAIFF(FILE* outfile, FILE* infile){
 	memcpy(buff, (char*)&sr, 10);
 	flipBytes(buff, 10);
 	fwrite(buff, sizeof(buff), 1, outfile);
+}\
+void writeSoundToAIFF(FILE* outfile, FILE* infile, File_Data data){
 
-	strncpy(format, "SSND", 4);
-	fwrite(format, sizeof(format), 1, outfile);
+	char bytes[4];
 
-	fileSize = data.samples * data.bitDepth;
+	strncpy(bytes, "SSND", 4);
+	fwrite(bytes, sizeof(bytes), 1, outfile);
+
+	int fileSize = data.samples * (data.bitDepth / 8) + 8;
 	memcpy(bytes, (char*)&fileSize, 4);
 	flipBytes(bytes, 4);
 	fwrite(bytes, sizeof(bytes), 1, outfile);
@@ -173,8 +169,19 @@ void convertCS229toAIFF(FILE* outfile, FILE* infile){
 	memcpy(bytes, (char*)&fileSize, 4);
 	flipBytes(bytes, 4);
 	fwrite(bytes, sizeof(bytes), 1, outfile);
+	processStartData(outfile, infile, &data);
+}
 
-	processStartData(outfile, infile, &data); 
+void convertCS229toAIFF(FILE* outfile, FILE* infile){
+	File_Data data;
+	processHeader(infile, &data);
+
+	if(data.success == 0){
+		printf("File failed to convert\n");
+		return;
+	}
+	writeHeaderAIFF(outfile, data); 
+	writeSoundToAIFF(outfile, infile, data);
 }
 
 File_Data CS229toTemp(FILE* outfile, FILE* infile, int addHeader){

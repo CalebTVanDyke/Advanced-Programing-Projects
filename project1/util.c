@@ -30,8 +30,26 @@ int trim(char* fileName, int size){
 	return i;
 }
 void rewrite(FILE* outf, FILE* inf){
-	char c;
+	int c;
 	while((c = fgetc(inf)) != EOF){
 		fputc(c, outf);
 	}
+}
+char * getFileType(FILE* inf, char * format){
+	int i;
+	for(i = 0; i < 4; i++){
+		format[i] = fgetc(inf);
+		if(format[i] == EOF){
+			break;
+		}
+	}
+	if(strncmp(format, "FORM", 4) == 0){
+		return format;
+	} else {
+		format[4] = fgetc(inf);
+	}
+	if(strncmp(format, "CS229", 5) == 0){
+		return format;
+	}
+	return NULL;
 }
