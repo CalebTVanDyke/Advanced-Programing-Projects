@@ -18,8 +18,8 @@ int main(int argc, char const *argv[])
 	int toCS229;
 	int fileInput = 0;
 
-	char infilepath[MAX_PATH_LENGTH] = "STDIN";
-	char outfilepath[MAX_PATH_LENGTH] = "STDOUT";
+	char infilepath[MAX_PATH_LENGTH];
+	char outfilepath[MAX_PATH_LENGTH];
 	char line[MAX_LINE_LENGTH];
 	char format[5];
 	char * fileName; 
@@ -102,7 +102,11 @@ int main(int argc, char const *argv[])
 			fwrite(format, 1, 4, outfile);
 			rewrite(outfile, infile);
 		}else {
-			convertAIFFtoCS229(outfile, infile, infilepath);
+			if(!fileInput){
+				convertAIFFtoCS229(outfile, infile, NULL);				
+			}else{
+				convertAIFFtoCS229(outfile, infile, infilepath);
+			}
 		}
 	} else {
 		format[4] = fgetc(infile);

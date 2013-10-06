@@ -6,7 +6,7 @@ proj1.tar.gz: sndconv.c util.c util.h AIFF.c AIFF.h CS229.c CS229.h makefile REA
 	tar -czf proj1.targz sndconv.c util.c util.h AIFF.c AIFF.h CS229.c CS229.h makefile README.txt sndinfo.c
 
 clean:
-	rm -f AIFF.o CS229.o util.o sndinfo.o sndconv.o sndinfo sndconv sndcat sndcat.o sndshow.o sndshow sndcut.o
+	rm -f AIFF.o CS229.o util.o sndinfo.o sndconv.o sndinfo sndconv sndcat sndcat.o sndshow.o sndshow sndcut.o sndcut
 
 sndshow: sndshow.o AIFF.o CS229.o util.o
 	gcc -ansi -ggdb -o sndshow sndshow.o AIFF.o CS229.o util.o -lm

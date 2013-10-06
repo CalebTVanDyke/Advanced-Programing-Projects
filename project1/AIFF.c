@@ -66,7 +66,7 @@ int** getSamplesAIFF(char * infilepath, File_Data fileData){
 		return NULL;
 	}
 	FILE* inf = NULL;
-	if(strncmp("STDIN", infilepath, 5) == 0){
+	if(!infilepath){
 		inf = stdin;
 	}else{
 		inf = fopen(infilepath, "r");
@@ -253,7 +253,7 @@ File_Data trimAIFF(highlow_t* highlow, int size){
 
 	File_Data data = processAIFF(stdout, stdin);
 
-	int **samples = getSamplesAIFF("STDIN", data);
+	int **samples = getSamplesAIFF(NULL, data);
 
 	int exclude = countHighLow(data.samples, highlow, size);
 	data.samples -= exclude;
@@ -330,7 +330,7 @@ void writeHeaderAIFF(FILE* outfile, File_Data data){
 int showAIFF(int width, int zoom, int chan){
 	File_Data data = processAIFF(stdout, stdin);
 
-	int ** samples = getSamplesAIFF("STDIN", data);
+	int ** samples = getSamplesAIFF(NULL, data);
 
 	showSamples(data, samples, width, zoom, chan);
 

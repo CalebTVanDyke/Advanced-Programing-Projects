@@ -25,10 +25,10 @@ int main(int argc, char const *argv[])
 	int i;
 
 	if(argc <= 1){
-		fprintf(stderr, "Use the switch -h for help.\n");
+		getFileInfo(NULL);
 		return -1;
 	}
-	if(argc > 1){
+	else if(argc > 1){
 		for(i = 0; i < argc; i++){
 			if(strncmp("-", argv[i], 1) == 0){
 				int j;
@@ -71,8 +71,14 @@ void getFileInfo(char * filePath){
 	char line[MAX_LINE_LENGTH];
 	char format[5];
 	char * fileName; 
+	FILE *file;
 
-	FILE *file = fopen(filePath, "r");
+	if(filePath){
+		file = fopen(filePath, "r");
+	}else{
+		file = stdin;
+	}
+
 	if(NULL == file){
 		fprintf(stderr, "%s could not be located.\n", filePath);
 		return;
@@ -94,8 +100,12 @@ void getFileInfo(char * filePath){
 	for(i = 0; i < 60; i++){
 		printf("-");
 	}
-
-	fileName = getFileName(filePath, strlen(filePath));
+	if(filePath){
+		fileName = getFileName(filePath, strlen(filePath));
+	}else{
+		fileName = "stdin";
+	}
+	
 
 	printf("\n");
 	printf("   Filename: %s\n", fileName);
