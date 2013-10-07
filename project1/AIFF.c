@@ -180,7 +180,7 @@ File_Data processAIFF(FILE *outfile, FILE* infile){
 	char buff[4];
 
 
-	int i;
+	int i, j;
 	for(i = 0; i < 4; i++){
 		buff[i] = fgetc(infile);
 	}
@@ -201,7 +201,7 @@ File_Data processAIFF(FILE *outfile, FILE* infile){
 		if(EOF == buff[0]){
 			data.success = 0;
 			return data;
-		}else if(buff[0] != 'C' && buff[0] != 'S'){
+		}else if(buff[0] != 'C' && buff[0] != 'S' && buff[0] != 'A'){
 			continue;
 		}
 
@@ -224,6 +224,22 @@ File_Data processAIFF(FILE *outfile, FILE* infile){
 		if(strncmp(buff, "SSND", 4) == 0){
 			foundSoundData = fgetpos(infile, &SSNDLocation);
 			foundSSND = 1;
+		}
+		if(strncmp(buff, "COMT", 4) == 0 || strncmp(buff, "ANNO", 4) == 0 ){
+
+			int chunkSize;
+			char sizeBuff[4];
+			for(j = 0; j < 4; j++){
+				sizeBuff[j] = fgetc(infile);
+			}
+			flipBytes(sizeBuff, 4);
+			chunkSize = *((int *)sizeBuff);
+			int count = 0;
+			while(count < chunkSize){
+				count++;
+				fgetc(infile);
+			}
+
 		}
 	}
 	if(foundSSND && foundComm)
@@ -257,7 +273,6 @@ File_Data trimAIFF(highlow_t* highlow, int size){
 
 	int exclude = countHighLow(data.samples, highlow, size);
 	data.samples -= exclude;
-	fprintf(stderr, "%d\n", exclude);
 	writeHeaderAIFF(stdout, data);
 	data.samples += exclude;
 
