@@ -51,6 +51,10 @@ File_Data processCS229(FILE *file){
 	data.sampleRate = -1;
 	data.bitDepth = -1;
 	processHeader(file, &data);
+	if(data.success == 0){
+		fprintf(stderr, "Error reading header.\n");
+		exit(EXIT_FAILURE);
+	}
 	int ** samps = getSamplesCS229(file, &data);
 	int i;
 	for(i = 0; i < data.samples; i++){
@@ -70,9 +74,9 @@ void convertCS229toAIFF(FILE* outfile, FILE* infile){
 	File_Data data;
 	processHeader(infile, &data);
 
-	if(data.success == 0){
-		printf("File failed to convert\n");
-		return;
+	if(!validateData(data)){
+		fprintf(stderr, "Error occured in header.\n");
+		exit(-1);
 	}
 	int **samples = getSamplesCS229(infile, &data);
 	writeHeaderAIFF(outfile, data); 
@@ -84,6 +88,12 @@ File_Data CS229toTemp(FILE* outfile, FILE* infile){
 	File_Data data;
 	strncpy(data.format, "CS229", 5);
 	processHeader(infile, &data);
+
+	if(!validateData(data)){
+		fprintf(stderr, "Error occured in header.\n");
+		exit(-1);
+	}
+
 	rewrite(outfile, infile);
 	return data;
 }
@@ -124,25 +134,38 @@ void writeHeaderCS229(FILE* outfile, File_Data data){
 	fprintf(outfile, "StartData\n");
 }
 int ** getSamplesCS229(FILE* inf, File_Data *data){
+	fpos_t sampleLocation;
+
+	char line[MAX_LINE_LENGTH];
+
+	fgetpos(inf, &sampleLocation);
+
+
+	int numSampls = 0;
+	if(data->samples <= 0){
+
+
+		while(fgets(line, MAX_LINE_LENGTH, inf)){
+			numSampls++;
+		}
+		fsetpos(inf, &sampleLocation);
+	}
+
+
 	int **samples = NULL;
-	long MAX = 1000;
 	if(data->samples > 0){
 		samples = malloc(data->samples * sizeof(int*));
-		MAX = data->samples;
+		numSampls = data->samples;
 	}else {
-		samples = malloc(MAX * sizeof(int*));
+		samples = malloc(numSampls * sizeof(int*));
 	}
 	int i;
-	for(i = 0; i < MAX; i++){
+	for(i = 0; i < numSampls; i++){
 		samples[i] = malloc(data->channels * sizeof(int*));
 	}
 	int j;
 	i = 0;
 	while(!feof(inf)){
-		if(i >= MAX){
-			MAX += MAX;
-			samples = realloc(samples, MAX * sizeof(int*));
-		}
 		for(j = 0; j < data->channels; j++){
 			fscanf(inf, "%d " , &samples[i][j]);
 			if(samples[i][j] < MIN_SAMPLE(data->bitDepth) || samples[i][j] > MAX_SAMPLE(data->bitDepth)){
@@ -152,8 +175,7 @@ int ** getSamplesCS229(FILE* inf, File_Data *data){
 		i++;
 	}
 	if(i != data->samples){
-		samples = realloc(samples, i  * sizeof(int*));
-		data->samples = i;
+		data->samples = numSampls;
 	}
 	return samples;
 }
@@ -161,6 +183,11 @@ void trimCS229(highlow_t *highlow, int size){
 
 	File_Data data;
 	processHeader(stdin, &data);
+
+	if(!validateData(data)){
+		fprintf(stderr, "Error occured in header.\n");
+		exit(-1);
+	}
 
 	int **samples = getSamplesCS229(stdin, &data);
 
@@ -173,6 +200,11 @@ void trimCS229(highlow_t *highlow, int size){
 int showCS229(int width, int zoom, int chan){
 	File_Data data;
 	processHeader(stdin, &data);
+
+	if(!validateData(data)){
+		fprintf(stderr, "Error occured in header.\n");
+		exit(-1);
+	}
 
 	int ** samples = getSamplesCS229(stdin, &data);
 

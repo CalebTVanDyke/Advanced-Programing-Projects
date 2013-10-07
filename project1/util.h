@@ -42,6 +42,7 @@ char* getFileType(FILE* inf, char * format);
 char* toLittleEndian(char* rev, int size);
 char* findDuration(int sampleRate, int channels, int samples, char timeStr[]);
 int trim(char* fileName, int size);
+int validateData(File_Data data);
 int countHighLow(int samples, highlow_t *highlow, int size);
 void showSamples(File_Data data, int** samples, int width, int zoom, int chan);
 

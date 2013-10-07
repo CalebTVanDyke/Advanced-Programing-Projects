@@ -251,6 +251,7 @@ void convertAIFFtoCS229(FILE* outfile, FILE* infile, char * infilepath){
 	File_Data data = processAIFF(outfile, infile);
 	if(data.success == 0){
 		printf("Failed to convert file\n");
+		exit(-1);
 	}
 	writeHeaderCS229(outfile, data);
 	processSSND(outfile, infilepath, data);
@@ -260,7 +261,10 @@ File_Data AIFFtoTemp(FILE* outfile, FILE* infile, char * infilepath){
 
 
 	File_Data data = processAIFF(outfile, infile);
-
+	if(!validateData(data)){
+		fprintf(stderr, "Error occured in COMM chunk\n");
+		exit(-1);
+	}
 	processSSND(outfile, infilepath, data);
 	return data;
 }
@@ -268,7 +272,10 @@ File_Data AIFFtoTemp(FILE* outfile, FILE* infile, char * infilepath){
 File_Data trimAIFF(highlow_t* highlow, int size){
 
 	File_Data data = processAIFF(stdout, stdin);
-
+	if(!validateData(data)){
+		fprintf(stderr, "Error occured in COMM chunk\n");
+		exit(-1);
+	}
 	int **samples = getSamplesAIFF(NULL, data);
 
 	int exclude = countHighLow(data.samples, highlow, size);
@@ -344,7 +351,10 @@ void writeHeaderAIFF(FILE* outfile, File_Data data){
 }
 int showAIFF(int width, int zoom, int chan){
 	File_Data data = processAIFF(stdout, stdin);
-
+	if(!validateData(data)){
+		fprintf(stderr, "Error occured in COMM chunk\n");
+		exit(-1);
+	}
 	int ** samples = getSamplesAIFF(NULL, data);
 
 	showSamples(data, samples, width, zoom, chan);

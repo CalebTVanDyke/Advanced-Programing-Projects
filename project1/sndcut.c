@@ -55,5 +55,14 @@ int main(int argc, char *argv[])
 }
 
 void displayHelp(){
-	printf("help\n");
+	printf("sndcut\n");
+	int i;
+	for (i = 0; i < 60; ++i){
+		printf("-");
+	}
+	printf("\n");
+	printf("sndcut will cut the specified lines from the file starting with line 0\n\n");
+	printf("sndcat [-h] [low..high] [low..high] ...\n\n");
+	printf("Options:\n");
+	printf("   -h     help: information on how to use the program\n\n");
 }

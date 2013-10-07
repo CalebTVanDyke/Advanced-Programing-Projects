@@ -1,9 +1,9 @@
 all: sndinfo sndconv sndcat sndcut sndshow
 
-tarball: proj1.tar.gz
+tarball: cvandyke.tar.gz
 
-proj1.tar.gz: sndconv.c util.c util.h AIFF.c AIFF.h CS229.c CS229.h makefile README.txt sndinfo.c
-	tar -czf proj1.targz sndconv.c util.c util.h AIFF.c AIFF.h CS229.c CS229.h makefile README.txt sndinfo.c
+cvandyke.tar.gz: sndconv.c util.c util.h AIFF.c AIFF.h CS229.c CS229.h makefile README.txt sndinfo.c
+	tar -czf cvandyke.targz sndconv.c util.c util.h AIFF.c AIFF.h CS229.c CS229.h makefile README.txt sndinfo.c sndshow.c sndcut.c sndcat.c
 
 clean:
 	rm -f AIFF.o CS229.o util.o sndinfo.o sndconv.o sndinfo sndconv sndcat sndcat.o sndshow.o sndshow sndcut.o sndcut

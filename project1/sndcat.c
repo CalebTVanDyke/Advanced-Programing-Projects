@@ -131,7 +131,7 @@ void displayHelp(){
 		printf("-");
 	}
 	printf("\n");
-	printf("sndcat converts audio files of the form CS229 and AIFF\n\n");
+	printf("sndcat combines audio files of the form CS229 and AIFF\n\n");
 	printf("sndcat [-ach] [<file> ...]\n\n");
 	printf("Options:\n");
 	printf("   -a     forces output to be in AIFF format.\n\n");

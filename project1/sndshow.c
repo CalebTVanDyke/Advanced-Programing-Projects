@@ -6,6 +6,8 @@
 #include "AIFF.h"
 
 void getInt(int* x, char* s);
+void showHelp();
+
 
 int main(int argc, char *argv[])
 {
@@ -16,6 +18,10 @@ int main(int argc, char *argv[])
 	for(i = 1; i < argc; i++){
 		if(argv[i][0] == '-'){
 			for(j = 0; j < strlen(argv[i]); j++){
+				if(argv[i][j] == 'h'){
+					showHelp();
+					return 0;
+				}
 				if(argv[i][j] == 'w'){
 					if(i + 1 < argc){
 						getInt(&width, argv[i+1]);
@@ -55,4 +61,19 @@ int main(int argc, char *argv[])
 }
 void getInt(int* x, char* s){
 	*x = atoi(s);
+}
+void showHelp(){
+	printf("sndshow\n");
+	int i;
+	for (i = 0; i < 60; ++i){
+		printf("-");
+	}
+	printf("\n");
+	printf("sndshow reads a file from stdin and displays a textual version of it\n\n");
+	printf("sndshow [-w w] [-c c] [-z n]\n\n");
+	printf("Options:\n");
+	printf("   -w w    How many characters should be printed on each line. Default is 80.\n\n");
+	printf("   -c c    Only display a specific channel. Default will display all channels.\n\n");
+	printf("   -z n    Zoom out by a factor of n. If not specifed, the default is n = 1.\n\n");
+	printf("   -h      help: information on how to use the program\n\n");
 }

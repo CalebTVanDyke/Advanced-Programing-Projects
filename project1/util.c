@@ -144,3 +144,8 @@ void showSamples(File_Data data, int** samples, int width, int zoom, int chan){
 		}
 	}
 }
+int validateData(File_Data data){
+	return data.channels >= 1 && data.channels <= 32 && 
+			(data.bitDepth == 8 || data.bitDepth == 16 || data.bitDepth == 32) &&
+			data.success; 
+}
