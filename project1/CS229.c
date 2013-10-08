@@ -96,6 +96,7 @@ File_Data CS229toTemp(FILE* outfile, FILE* infile){
 	}
 
 	rewrite(outfile, infile);
+	printf("\n");
 	return data;
 }
 int writeSamplesCS229(FILE* outf, int** samps, File_Data fileData, highlow_t* highlow, int size){
