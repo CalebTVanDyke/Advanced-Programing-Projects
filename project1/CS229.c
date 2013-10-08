@@ -96,7 +96,7 @@ File_Data CS229toTemp(FILE* outfile, FILE* infile){
 	}
 
 	rewrite(outfile, infile);
-	printf("\n");
+	fprintf(outfile, "\n");
 	return data;
 }
 int writeSamplesCS229(FILE* outf, int** samps, File_Data fileData, highlow_t* highlow, int size){
@@ -114,13 +114,9 @@ int writeSamplesCS229(FILE* outf, int** samps, File_Data fileData, highlow_t* hi
 			continue;
 		}
 		for(j = 0; j < fileData.channels; j++){
-			fprintf(outf, "%d", samps[i][j]);
-			if(j + 1 != fileData.channels){
-				fprintf(outf, " ");
-			}
+			fprintf(outf, "%d ", samps[i][j]);
 		}
-		if(j == fileData.channels);
-			fprintf(outf, "\n");
+		fprintf(outf, "\n");
 	}
 	for(i = 0; i < fileData.samples; i++){
 		free(samps[i]);
