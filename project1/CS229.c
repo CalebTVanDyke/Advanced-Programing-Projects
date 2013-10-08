@@ -72,6 +72,7 @@ File_Data processCS229(FILE *file){
 
 void convertCS229toAIFF(FILE* outfile, FILE* infile){
 	File_Data data;
+	data.samples = -1;
 	processHeader(infile, &data);
 
 	if(!validateData(data)){
@@ -144,7 +145,6 @@ int ** getSamplesCS229(FILE* inf, File_Data *data){
 	int numSampls = 0;
 	if(data->samples <= 0){
 
-
 		while(fgets(line, MAX_LINE_LENGTH, inf)){
 			numSampls++;
 		}
@@ -182,6 +182,7 @@ int ** getSamplesCS229(FILE* inf, File_Data *data){
 void trimCS229(highlow_t *highlow, int size){
 
 	File_Data data;
+	data.samples = -1;
 	processHeader(stdin, &data);
 
 	if(!validateData(data)){
@@ -199,6 +200,7 @@ void trimCS229(highlow_t *highlow, int size){
 }
 int showCS229(int width, int zoom, int chan){
 	File_Data data;
+	data.samples = -1;
 	processHeader(stdin, &data);
 
 	if(!validateData(data)){

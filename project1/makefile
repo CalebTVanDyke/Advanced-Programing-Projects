@@ -2,7 +2,7 @@ all: sndinfo sndconv sndcat sndcut sndshow
 
 tarball: cvandyke.tar.gz
 
-cvandyke.tar.gz: sndconv.c util.c util.h AIFF.c AIFF.h CS229.c CS229.h makefile README.txt sndinfo.c
+cvandyke.tar.gz: sndconv.c util.c util.h AIFF.c AIFF.h CS229.c CS229.h makefile sndinfo.c
 	tar -czf cvandyke.targz sndconv.c util.c util.h AIFF.c AIFF.h CS229.c CS229.h makefile README.txt sndinfo.c sndshow.c sndcut.c sndcat.c
 
 clean:
