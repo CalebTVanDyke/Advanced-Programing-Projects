@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 					fprintf(stderr, "File %s did not have the same bit depth as the first file.\n", argv[i]);
 					return -1;
 				}
-				if(next.bitDepth != orig.sampleRate){
+				if(next.sampleRate != orig.sampleRate){
 					fprintf(stderr, "File %s did not have the same sample rate as the first file.\n", argv[i]);
 					return -1;
 				}
