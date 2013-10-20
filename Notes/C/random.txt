@@ -1,0 +1,170 @@
+Fun leftovers in C but first a quiz;
+
+Difference in 
+
+	int a[10]; 
+
+	and 
+
+	int *a = malloc(10*sizeof(int));
+
+Both of these will "build an array" 
+
+	int a[10] // stores 'a' on the runtime stack
+
+	int *a    // stores 'a' on the heap
+
+Random leftovers:
+
+You can define enumerated types in C:
+
+	enum <tag> {
+		identifiers separated by commas
+	} vars;
+
+
+	enum code {
+		CODE_SUCCESS.
+		CODE_NOT_IMPLEMENTED,
+		CODE_MALLOC_FAIL,
+		CODE_BAD_FILE,
+		CODE_NULL_POINTER
+	};
+
+	enum code foo = CODE_SUCCESS;
+
+	Integers underneath
+
+Warning!!!!
+
+	(*) These are useful to make code more readable
+
+	(*) No guarantees for type / value checking
+
+enum boolean {
+	false, true
+}
+
+enum boolean foo = 3; // this is acceptable
+
+
+Bitfields:
+
+struct charcolsmal2 {
+	
+	unsigned int data : 8; /* 8 bits for data */
+	unsigned int : 4; /* 4 bits for fg */
+	unsigned int bg : 4; /* 4 bits for bg */
+
+}
+
+You can take the address of anything except a bitfield.
+
+	YOU CAN NOT DO THIS int* a = &(ccs.fg); /* sorry, won't work */
+
+Absolutely no guarantee how this is stored because of alignment fun.
+
+Another fun C trick:
+
+	unions - what are these ?
+
+	Look exactly like structs:
+
+	A union stores all of its members a the *same* place in memory
+		SAME MEMORY LOCATION
+
+	union date{
+		short year;
+		char month;
+		char day;
+	}
+	sizeof(date) is most likely two
+
+What is the point of unions?
+
+	struct vector {
+		union {
+			float* fdata;
+			double* ddata;
+		};
+		int size;
+		isDouble;
+	};
+
+	struct sound_data{
+
+		union{
+			char* data8;
+			short* data16;
+			int* data32;
+		};
+		int num_samps;
+		char num_channels;
+		char bit_depth;
+
+	};
+
+
+FUNCTION POINTERS:
+
+	Suppose we want a function to sum f(i) for integer i from 0 to n.
+
+	int sum(function f, int n){
+
+		int answer = 0;
+		int i;
+		for(i = 0; i <= n; i++){
+			answer+=f(i);
+		}
+		return answer;
+	}
+
+	Declaring a function pointer works like this:
+
+		suppose I want a variable names "foo" that holds some function of the form 
+		<retval> func(params):
+
+			retval (*foo)(params);
+
+		typedef to the rescue:
+			typedef retval (*myfunc)(params);
+
+			myfunc f;
+
+	REAL EXAMPLE:
+
+		int foo(int a){
+
+		}
+		int bar(int b){
+
+		}
+		int cruft(int c){
+
+		}
+
+		int main(){
+			int (*f)(int);
+			f = foo;
+		}
+
+Last dark corner of C:
+
+	int func(int *a);
+	int func2(int a[]);
+
+	struct foo {
+		int stuff;
+		int *a;
+	};
+
+	struct bar {
+		int stuff;
+		int a[];
+	};
+
+	struct bar* p;
+
+	p = malloc(sizeof(struct bar) + 10*sizeof(int));
+	p.stuff = whatever;
+	p.a /* is an array of size 10 */

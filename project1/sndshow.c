@@ -12,7 +12,8 @@ void showHelp();
 int main(int argc, char *argv[])
 {
 	char format[5];
-
+	File_Data data;
+	data.sampleData = NULL;
 	int i, j;
 	int width = 80, zoom = 1, chan = -1;
 	for(i = 1; i < argc; i++){
@@ -52,11 +53,15 @@ int main(int argc, char *argv[])
 	getFileType(stdin, format);
 
 	if(strncmp(format, "FORM", 4) == 0){
-		showAIFF(width, zoom, chan);
+		data = showAIFF(stdin, NULL, width, zoom, chan, USE_STDOUT);
 	}
 	else if(strncmp(format, "CS229", 5) == 0){
-		showCS229(width, zoom, chan);
+		data = showCS229(stdin, width, zoom, chan, USE_STDOUT);
 	}
+	if(data.sampleData)
+		for(i = 0; i < data.samples; i++){
+			free(data.sampleData[i]);
+		}
 	return 0;
 }
 void getInt(int* x, char* s){

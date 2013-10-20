@@ -1,0 +1,91 @@
+curses
+------
+
+Google for more information:
+
+	www.gnu.org/s/ncurses
+
+"Easy to get" for Linux / Mac OS (Mac Ports / Fink) / Cygwin
+
+Also more information:
+
+	tldp.org/HOWTO/NCURSES-Programming-HOWTO/
+
+	man pages
+
+What does curses / ncurses do?
+
+C library with functions to:
+
+	* move cursor
+	* grab keystrokes
+	* produce colors 
+	* create (logical) windows
+
+within a terminal
+
+	-> gives us TUI applications
+
+Basic stuff:
+
+	initscr() - init window
+	printw() - print to a window
+	getch() - grab a key stroke
+	refresh() - refreshes display of the buffer stream
+	endwin() - tear down window
+
+Moving cursor around:
+	
+	x - column number
+	y - row number
+
+	getmaxyx(stdscr, rows, cols);
+
+	stores #rows in variable rows
+	stores #cols in variable cols
+
+	IT IS A MACRO so you don't need to have ampersands 
+
+	(rows - 1, cols-1) is bottom right corner
+
+	move(y, x); /* This cursor to the position y, x
+
+	mvprintw(y, x, "same as printw here"); /* this moves the cursor and prints also */
+
+	addch(char c);
+		/* prints character and advances the character by one */
+
+	mvaddch(y, x, c);
+
+Keystroke stuff:
+
+	int getch();
+
+	^ because we want to grab things like "pg up" or "up arrow"
+
+	echo(); - show keystrokes to screen
+	noecho(); - don't
+
+	cbreak(); - keystrokes immediately available
+	nocbreak; - keystrokes may be buffered
+
+	keypad(window, int enabled)
+		if enabled, keypad escape sequences (e.g.. for up arrow) are converted to useful values
+
+		compare against things like:
+
+			KEY_F(2)
+			KEY_LEFT
+			KEY_UP
+			KEY_DOWN
+
+Reverse video text-
+
+(HIGHLIGHT)
+
+	attron(A_REVERSE);
+
+	From now on, everything you "printw" or "addch"
+	will appear in reverse video
+
+	attroff(A_REVERSE);

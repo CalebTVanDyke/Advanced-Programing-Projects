@@ -6,6 +6,7 @@
 #include "CS229.h"
 #include "AIFF.h"
 #include <math.h>
+#include <ncurses.h>
 
 fpos_t SSNDLocation;
 int foundSoundData = 1;
@@ -53,17 +54,17 @@ CommonChunk processComm(FILE* file){
 	}
 	return comm;
 }
-int** getSamplesAIFF(char * infilepath, File_Data fileData){
+void getSamplesAIFF(char * infilepath, File_Data *fileData){
 	
-	int ** ssndData = malloc(fileData.samples*sizeof(int*));
+	fileData->sampleData = malloc(fileData->samples*sizeof(int*));
 	int i, j, k;	
-	for(i = 0; i < fileData.samples; i++){
-		ssndData[i] = malloc(fileData.channels*sizeof(int));
+	for(i = 0; i < fileData->samples; i++){
+		fileData->sampleData[i] = malloc(fileData->channels*sizeof(int));
 	}
 
 	if(foundSoundData){
 		fprintf(stderr, "Sound data chunk was not found.\n");
-		return NULL;
+		return;
 	}
 	FILE* inf = NULL;
 	if(!infilepath){
@@ -73,7 +74,7 @@ int** getSamplesAIFF(char * infilepath, File_Data fileData){
 	}
 	if(fsetpos(inf, &SSNDLocation)){
 		fprintf(stderr, "Error reading sound data chunk.\n");
-		return NULL;
+		return;
 	}
 	SoundDataChunk data;
 
@@ -98,47 +99,35 @@ int** getSamplesAIFF(char * infilepath, File_Data fileData){
 	flipBytes(buff, 4);
 	char sample[4];
 	data.blockSize = *((int*)buff);
-	for (i = 0 ; i < fileData.samples; i++){
-		for(k = 0; k < fileData.channels; k++){
+	for (i = 0 ; i < fileData->samples; i++){
+		for(k = 0; k < fileData->channels; k++){
 			for (j = 0; j < 4; j++){
 				sample[j] = 0;
 			}	
-			for (j = 0; j < fileData.bitDepth / 8; j++){
+			for (j = 0; j < fileData->bitDepth / 8; j++){
 				sample[j] = getc(inf);
 			}
-			flipBytes(sample, fileData.bitDepth / 8);
-			if(fileData.bitDepth == 8){
-				ssndData[i][k] = (int)sample[0];
+			flipBytes(sample, fileData->bitDepth / 8);
+			if(fileData->bitDepth == 8){
+				fileData->sampleData[i][k] = (int)sample[0];
 			}
-			else if(fileData.bitDepth == 16){
-				ssndData[i][k] = (int)(*((short*)sample));
+			else if(fileData->bitDepth == 16){
+				fileData->sampleData[i][k] = (int)(*((short*)sample));
 			}
-			else if(fileData.bitDepth == 32){
-				ssndData[i][k] = (int)(*((int*)sample));
+			else if(fileData->bitDepth == 32){
+				fileData->sampleData[i][k] = (int)(*((int*)sample));
 			}
 		}
 	}
 	fclose(inf);
-	return ssndData;
 }
 
-int writeSamplesAIFF(FILE* outf, int **samples, File_Data data, highlow_t *highlow, int size){
+int writeSamplesAIFF(FILE* outf, File_Data data){
 	int i, j, k;
 	char bytes[4];
 	for(i = 0; i < data.samples; i++){
-		int toContinue = 0;
-		for(j = 0; j < size; j++){
-			if(i >= highlow[j].low  && i <= highlow[j].high){
-				toContinue = 1;
-				break;
-			}
-		}
-		if(toContinue){
-			toContinue = 0;
-			continue;
-		}
 		for(j = 0; j < data.channels; j++){
-			int x = samples[i][j];
+			int x = data.sampleData[i][j];
 			memcpy(bytes, &x, 4);
 			flipBytes(bytes, 4);
 			if(data.bitDepth == 8){
@@ -152,16 +141,12 @@ int writeSamplesAIFF(FILE* outf, int **samples, File_Data data, highlow_t *highl
 			}
 		}
 	}
-	for(i = 0; i < data.samples; i++){
-		free(samples[i]);
-	}
-	/*free(samples);*/
 }
 
 int processSSND(FILE* outf, char * infilepath, File_Data fileData){
 
-	int **samples = getSamplesAIFF(infilepath, fileData);
-	writeSamplesCS229(outf, samples, fileData, NULL, 0);
+	getSamplesAIFF(infilepath, &fileData);
+	writeSamplesCS229(outf, fileData);
 
 }
 
@@ -276,18 +261,21 @@ File_Data trimAIFF(highlow_t* highlow, int size){
 		fprintf(stderr, "Error occured in COMM chunk\n");
 		exit(-1);
 	}
-	int **samples = getSamplesAIFF(NULL, data);
+	getSamplesAIFF(NULL, &data);
 
-	int exclude = countHighLow(data.samples, highlow, size);
-	data.samples -= exclude;
+	int i;
+
+	for(i = 0; i < size; i++){
+		cut(&data, highlow[i].low, highlow[i].high);
+	}
+
 	writeHeaderAIFF(stdout, data);
-	data.samples += exclude;
 
-	setupSoundAIFF(stdout, stdin, data);
+	setupSoundAIFF(stdout, data);
 
-	writeSamplesAIFF(stdout, samples, data, highlow, size);
+	writeSamplesAIFF(stdout, data);
 }
-void setupSoundAIFF(FILE* outfile, FILE* infile, File_Data data){
+void setupSoundAIFF(FILE* outfile, File_Data data){
 
 	char bytes[4];
 
@@ -349,20 +337,38 @@ void writeHeaderAIFF(FILE* outfile, File_Data data){
 	flipBytes(buff, 10);
 	fwrite(buff, sizeof(buff), 1, outfile);
 }
-int showAIFF(int width, int zoom, int chan){
-	File_Data data = processAIFF(stdout, stdin);
+File_Data showAIFF(FILE* file, char* fileName, int width, int zoom, int chan, int curses){
+	File_Data data = processAIFF(stdout, file);
 	if(!validateData(data)){
+		if(curses)
+			endwin();
 		fprintf(stderr, "Error occured in COMM chunk\n");
 		exit(-1);
 	}
-	int ** samples = getSamplesAIFF(NULL, data);
+	getSamplesAIFF(fileName, &data);
 
-	showSamples(data, samples, width, zoom, chan);
-
-	int i;
-	for(i = 0; i < data.samples; i++){
-		free(samples[i]);
+	if(curses){
+		int rows, cols;
+		getmaxyx(stdscr, rows, cols);
+		int botSamp = (rows - 3) / data.channels;
+		showSamplesRange(data, width, zoom, chan, curses, 0, botSamp, 0, botSamp*(rows - 3) - botSamp * data.channels);
 	}
+	else
+		showSamplesSTDOUT(data, width, zoom, chan);
 
+	return data;
 }
+File_Data showAIFFrange(FILE* file, char* fileName, int width, int zoom, int chan, int curses, int start, int end, int topChan, int bottomChan){
+		File_Data data = processAIFF(stdout, file);
+	if(!validateData(data)){
+		if(curses)
+			endwin();
+		fprintf(stderr, "Error occured in COMM chunk\n");
+		exit(-1);
+	}
+	getSamplesAIFF(fileName, &data);
 
+	showSamplesRange(data, width, zoom, chan, curses, start, end, topChan, bottomChan);
+
+	return data;
+}

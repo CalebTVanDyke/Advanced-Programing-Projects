@@ -1,0 +1,148 @@
+Pointer Casting:
+
+C lets you do it with just a warning, or no warning at all if you explicitly cast
+
+E.g..
+
+	float* x;
+	int *y;
+
+	y = x;
+	x = (float*) y;
+
+Generic pointers in C:
+
+	void *p;
+
+What can we do with void* pointers?
+
+(1) Assign to any other pointer type with no warnings
+
+	x = p;
+
+(2) Assign from any other pointer type with no warnings
+
+	p = x;
+
+(3) Dereference?
+
+	*p;		/* This works, but it does absolutely nothing */
+
+	int a = *p; /* This will throw an error */
+
+(4) Increment / decrement?
+
+	p++; /* Increments pointer by one byte */
+
+
+
+
+HEAP
+----
+
+Up until now, every variable we declare in C was stored either on the runtime stack, or statically somewhere
+
+e.g...
+
+	void main()
+	{
+		int x;
+		printf("Hello, world!\n");
+		return 0;
+	}
+
+	x - stored on runtime stack
+
+	"Hello, world!\n"0 - is stored somewhere at compiler's discretion
+
+Heap memory - a place where we can dynamically grab and recycle chunks of memory as we need it
+
+	* need to allocate what we need by hand - say how many bytes you want
+	* need to recycle that memory when done, by hand
+	* bad things happen when we do this incorrectly
+
+Functions:
+	malloc 		Live in <stdlib.h>
+	free
+	realloc (just for fun)
+
+Using malloc:
+
+	void* malloc(int bytes);
+
+	What it does: either,
+
+		(1) return 0 (fail)
+
+		(2) gives you back a pointer to at least that many bytes of memory
+
+				- Memory is not initialized in any way!
+
+				- should be fine for alignment for anything
+
+	You should ALWAYS check that your malloc() call succeeded
+
+Examples:
+
+	double * dp;
+	dp = malloc( I_NEED_THIS_MANY_DOUBLES * sizeof(double));
+
+	if(!dp) {
+		fprintf(stderr, "malloc failed\n");
+		exit(1);
+	}
+
+
+What to do with these pointers when we're done?
+
+	void free(void * x);
+
+What it does?
+
+	- return a chunk of memory back to the heap
+
+	- the chunk MUST HAVE BEEN returned by malloc previously
+
+How does the heap work?
+
+	- Inside memory somewhere there is a data structure to keep track of this memory
+	- This data structure is system dependent
+
+Most Likely -
+	
+	- Memory chunkc returned by malloc has some extra info stored just before the pointer returned
+
+	- Imagine this;
+
+		char *chunk = find_memory();
+
+		return chunk + B;
+
+	-  Writing random bytes to the heap can corruept the heap
+
+		e.g.. write before the beginning of an array that was malloc'd 
+
+		e.g.. free something that was never malloc'd
+
+		e.g.. free something twice
+
+For fun:
+
+	realloc - reallocate a chunk of memory
+
+	void * realloc(void * p , size_t bytes);
+
+		- p was previously malloc'd or 0
+
+		- will try to extend the chunk of memory pointed at by p,
+		  to be the specified size
+
+		- if there is space, it will add to the end
+
+		- if there is no space right after, but there is space,
+		  then memory will be copied
+
+		bytes can be more or less than the original size of p
+
+		
+

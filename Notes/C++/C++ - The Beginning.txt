@@ -1,0 +1,63 @@
+C++ - The Beginning
+-------------------
+
+Invented by Bjarne Stroustrup in early 1980's
+
+	- wanted OOL that was fast
+	- none existed, so he made one
+
+Philosophy of C++
+
+	- retain as much of C as possible
+
+		including efficiency - don't pay for unused features
+		including "The programmer is always right"
+		many C programs are also C++ programs
+
+			(More reserved words in C++)
+
+	- better type checking
+
+		some things in C must be explicitly cast now
+
+	- clean up some syntax
+
+	- and some features to make programming easier
+
+		references
+		classes - basically, structs with methods inside
+		templates
+		exceptions - just like java
+		namespaces
+		overloading (function/operators)
+		OO-style I/O
+
+	- you can use as few or as many of these features as you like
+
+But:
+	
+	K&R book: 272 pages
+
+	Stroustrup book: 1020 pages
+
+Nice things we get in C++:
+
+	(1) bool types, and constants 'true' 'false'
+
+		sizeof(1 bytes);
+
+	(2) single - line comments
+
+		// bout damn time
+
+	(3) define variables in a for loop
+
+	(5) struct fun
+
+			strunct foo{			
+			};
+
+			struct foo x; // c way
+			foo x; // c++ way
+	
+

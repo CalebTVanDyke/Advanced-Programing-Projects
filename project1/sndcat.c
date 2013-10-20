@@ -62,6 +62,7 @@ int main(int argc, char *argv[])
 				orig = soundToTemp(sampleData, inf, argv[i]);
 				samples += orig.samples;
 				strncpy(firstFile, orig.format, 5);
+				freeSamples(&orig);
 			} else {
 				next = soundToTemp(sampleData, inf, argv[i]);
 				samples += next.samples;
@@ -77,17 +78,22 @@ int main(int argc, char *argv[])
 					fprintf(stderr, "File %s did not have the same sample rate as the first file.\n", argv[i]);
 					return -1;
 				}
+				freeSamples(&next);
 			}
 		}
 	}
 	orig.samples = samples;
 	fclose(sampleData);
 	sampleData = fopen(tempFileName, "r");
-	writeHeaderCS229(stdout, orig);
+
 	if(toAIFF){
-		convertCS229toAIFF(stdout, sampleData);
+		writeHeaderAIFF(stdout, orig);
+		getSamplesCS229(sampleData, &orig);
+		setupSoundAIFF(stdout, orig);
+		writeSamplesAIFF(stdout, orig);
 	}
 	else if(toCS229){
+		writeHeaderCS229(stdout, orig);
 		rewrite(stdout, sampleData);
 	}else {
 		if(strncmp(firstFile, "CS229", 5) == 0){
@@ -96,7 +102,7 @@ int main(int argc, char *argv[])
 		else if (strncmp(firstFile, "AIFF", 4) == 0){
 			convertCS229toAIFF(stdout, sampleData);
 		} else {
-			fprintf(stderr, "FIRST FILE NO SPECIFIED.\n");
+			fprintf(stderr, "FIRST FILE NOT SPECIFIED.\n");
 		}
 	}
 	fclose(sampleData);

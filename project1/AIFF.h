@@ -6,8 +6,10 @@ void convertAIFFtoCS229(FILE* outfile, FILE* infile, char * infilepath);
 File_Data AIFFtoTemp(FILE* outfile, FILE* infile, char * infilepath);
 File_Data trimAIFF(highlow_t * highlow, int size);
 void writeHeaderAIFF(FILE* outfile, File_Data data);
-void setupSoundAIFF(FILE* outfile, FILE* infile, File_Data data);
-int writeSamplesAIFF(FILE* outf, int **samples, File_Data data, highlow_t *highlow, int size);
-int showAIFF(int width, int zoom, int chan);
+void setupSoundAIFF(FILE* outfile, File_Data data);
+int writeSamplesAIFF(FILE* outf, File_Data data);
+File_Data showAIFF(FILE* file, char* filePath, int width, int zoom, int chan, int curses);
+File_Data showAIFFrange(FILE* file, char* fileName, int width, int zoom, int chan, int curses, int start, int end, int topChan, int bottomChan);
+void freeSamples(File_Data* data);
 
 #endif
