@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "util.h"
 #include <math.h>
 #include <limits.h>
@@ -201,6 +202,12 @@ int validateData(File_Data data){
 void cut(File_Data* data, int firstMark, int lastMark){
 	int i, j;
 	int samp = 0;
+
+	if(firstMark > lastMark){
+		int temp = firstMark;
+		firstMark = lastMark;
+		lastMark = temp; 
+	}
 
 	for(i = 0; i < data->samples; i++){
 		if(i >= firstMark && i <= lastMark){
