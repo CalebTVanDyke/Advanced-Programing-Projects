@@ -89,14 +89,13 @@ int main(int argc, char const *argv[])
 	while( (c = getch()) != 'q'){
 		int prevX, prevY;
 		getyx(stdscr, prevY, prevX);
-		int currSamp = topSamp + ((prevY - 2)/data.channels);
+		int currSamp = topSamp + ((prevY - 2 + topChan)/data.channels);
 		int currChan = (prevY - 2) % data.channels + topChan;
 		if(c == 'm'){
 			if(!markon){
 				markon = 1;
-				mvchgat(prevY, 0, cols-21, A_REVERSE, 0, NULL);
-				firstMark = topSamp + ((prevY - 2)/data.channels);
-				lastMark = topSamp + ((prevY - 2)/data.channels);
+				firstMark = currSamp;
+				lastMark = currSamp;
 			}
 			else{
 				markon = 0;
@@ -131,7 +130,7 @@ int main(int argc, char const *argv[])
 				}
 				free(buffer);
 			}
-			bufferSize = lastMark - firstMark + 1;
+			bufferSize = abs(lastMark - firstMark) + 1;
 			buffer = malloc(bufferSize * sizeof(int*));
 			for(i = 0; i < bufferSize; i++){
 				buffer[i] = malloc(data.channels * sizeof(int));
@@ -181,16 +180,10 @@ int main(int argc, char const *argv[])
 				clearExtra(rows, width);
 				printHelp(markon, modified, buffered, data, firstMark, bufferSize);
 				if(markon){
-					if(topSamp < firstMark){
-						firstMark = topSamp;
-					}
-					else if(topSamp > lastMark){
-						lastMark = topSamp;
-					}
-					markAll(data, firstMark, lastMark, topSamp, botSamp, topChan, botChan);
+					lastMark = topSamp;
 				}
-				move(2, width/2 + 4);
-				continue;
+				prevY = 2;
+				prevX = width/2 + 4;
 			}else{
 				move(2, 0);
 				showSamplesRange(data, width, 1, -1, USE_NCURSES, topSamp, botSamp, topChan, botChan);
@@ -212,22 +205,18 @@ int main(int argc, char const *argv[])
 						topSamp++;
 					}
 					move(2, 0);
+					currSamp = topSamp + ((prevY - 2 + topChan)/data.channels);
 					showSamplesRange(data, width, 1, -1, USE_NCURSES, topSamp, botSamp, topChan, botChan);
-					if(markon)
-						markAll(data, firstMark, lastMark, topSamp, botSamp, topChan, botChan);
 				}
 			}else{
 				if(currSamp >= data.samples - 1 && currChan >= data.channels - 1){
 					continue;
 				}
 				move(++prevY, prevX);
-				currSamp = topSamp + ((prevY - 2)/data.channels);
-				if(markon){
-					if(currSamp > lastMark){
-						lastMark = currSamp;
-					}
-					mvchgat(prevY, 0, cols-21, A_REVERSE, 0, NULL);
-				}
+				currSamp = topSamp + ((prevY - 2 + topChan)/data.channels);
+			}
+			if(markon){
+				lastMark = currSamp;
 			}
 		} 
 		else if(c == KEY_UP){
@@ -242,25 +231,49 @@ int main(int argc, char const *argv[])
 					if(topChan < 0){
 						topChan = data.channels - 1;
 						topSamp--;
-						if(topSamp < firstMark)
-							firstMark = topSamp;
 					}
 					move(2, 0);
+					currSamp = topSamp + ((prevY - 2 + topChan)/data.channels);
 					showSamplesRange(data, width, 1, -1, USE_NCURSES, topSamp, botSamp, topChan, botChan);
-					if(markon)
-						markAll(data, firstMark, lastMark, topSamp, botSamp, topChan, botChan);
 				}
 			}else{
 				move(--prevY, prevX);
-				if(markon){
-					if(currSamp < firstMark){
-						firstMark = currSamp;
-					}
-					mvchgat(prevY, 0, cols-21, A_REVERSE, 0, NULL);
-				}
+				currSamp = topSamp + ((prevY - 2 + topChan)/data.channels);
+			}
+			if(markon){
+				lastMark = currSamp;
 			}
 		}
+		else if(c == KEY_PPAGE){
+			prevY = 2;
+ 			prevX = ((cols-20)/2+9)-5;
+			botSamp = topSamp;
+			topSamp = botSamp - (rows - 3) / data.channels;
+			if(topSamp < 0){
+				topSamp = 0;
+				botSamp = topSamp + (rows - 3) / data.channels;
+			}
+			if(markon)
+				lastMark = topSamp;
+			move(2, 0);
+			showSamplesRange(data, width, 1, -1, USE_NCURSES, topSamp, botSamp, topChan, botChan);
+		}
+		else if(c == KEY_NPAGE){
+ 			prevY = 2;
+ 			prevX = ((cols-20)/2+9)-5;
+			topSamp = botSamp;
+			botSamp = topSamp + (rows - 3) / data.channels;
+			if(botSamp >= data.samples){
+				botSamp = data.samples - 1;
+				topSamp = botSamp - (rows - 3) / data.channels;
+			}
+			if(markon)
+				lastMark = topSamp;
+			move(2, 0);
+			showSamplesRange(data, width, 1, -1, USE_NCURSES, topSamp, botSamp, topChan, botChan);
+		}
 		printHelp(markon, modified, buffered, data, firstMark, bufferSize);
+		markAll(data, firstMark, lastMark, topSamp, botSamp, topChan, botChan);
 		move(prevY, prevX);
 		refresh();
 	}
@@ -362,21 +375,37 @@ void markAll(File_Data data, int topMark, int botMark, int topSamp, int botSamp,
 	int rows, cols;
 	getmaxyx(stdscr, rows, cols);
 	int y = 2;
-	int currSamp;
+	int currSamp = topSamp + ((y - 2)/data.channels);;
 	if(topMark == -1 || botMark == -1){
 		return;
 	}
-
+	if(topMark > botMark){
+		int temp = topMark;
+		topMark = botMark;
+		botMark = temp;
+	}
 	while(y < rows){
-		currSamp = topSamp + ((y - 2)/data.channels);
+		if(topChan % data.channels == 0 && topChan != 0){
+			topChan = 0;
+			currSamp++;
+		}
 		if(currSamp >= topMark && currSamp <= botMark){
 			mvchgat(y, 0, cols-21, A_REVERSE, 0, NULL);
+		}else{
+			mvchgat(y, 0, cols-21, A_NORMAL, 0, NULL);
 		}
 		y++;
+		topChan++;
 		move(y, 0);
 	}	
 }
 void copy(File_Data data, int** buffer, int firstMark, int lastMark){
+
+	if(firstMark > lastMark){
+		int temp = firstMark;
+		firstMark = lastMark;
+		lastMark = temp;
+	}
 	int i, j, k = 0;
 	for(i = firstMark; i <= lastMark && i < data.samples; i++){
 		for(j = 0; j < data.channels; j++){
