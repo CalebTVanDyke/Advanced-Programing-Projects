@@ -70,7 +70,7 @@ int main(int argc, char const *argv[])
 		fprintf(stderr, "File was not a CS229 or AIFF file in the correct format\n");
 		return;
 	}
-	findDuration(data.sampleRate, data.channels, data.samples, data.duration);
+	strcpy(findDuration(data.sampleRate, data.channels, data.samples, data.duration), data.duration);
 	origSamples = data.samples;
 	int topSamp = 0;
 	int topChan = 0;
@@ -445,4 +445,5 @@ void paste(File_Data *data, int** buffer, int bufferSize,int startSample, int or
 	}
 	free(data->sampleData);
 	data->sampleData = newSamples;
+	strcpy(findDuration(data->sampleRate, data->channels, data->samples, data->duration), data->duration);
 }

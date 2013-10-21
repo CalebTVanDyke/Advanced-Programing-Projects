@@ -3,6 +3,7 @@
 #include "util.h"
 #include <math.h>
 #include <limits.h>
+#include <string.h>
 
 char* findDuration(int sampleRate, int channels, int samples, char timeStr[]){
 	float seconds = 1 /(sampleRate / (float)samples);
@@ -219,7 +220,7 @@ void cut(File_Data* data, int firstMark, int lastMark){
 		samp++;
 	}
 	data->samples = samp;
-	findDuration(data->sampleRate, data->channels, data->samples, data->duration);
+	strcpy(findDuration(data->sampleRate, data->channels, data->samples, data->duration), data->duration);
 }
 void freeSamples(File_Data* data){
 	int i, j;

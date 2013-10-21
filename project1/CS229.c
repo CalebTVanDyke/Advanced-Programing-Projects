@@ -11,7 +11,12 @@
 
 int foundStartData = 0;
 
+/**
 
+Processes the header of a file starting after the initial "CS229" at the top of the file
+Stores the information from the file in File_Data structure data;
+
+**/
 void processHeader(FILE* file , File_Data * data){
 	char line[MAX_LINE_LENGTH];
 	int foundChannels = 0;
@@ -42,7 +47,12 @@ void processHeader(FILE* file , File_Data * data){
 	}
 }
 
+/**
 
+Processes the whole CS229 file starting after the "CS229 at the top of the file"
+Thie will call processHeader and getSamplesCS229 to process the data of the file
+
+**/
 File_Data processCS229(FILE *file){
 	char line[MAX_LINE_LENGTH];
 	File_Data data;
@@ -66,6 +76,12 @@ File_Data processCS229(FILE *file){
 	return data;
 }
 
+/**
+
+Takes the infile in the form of CS229 and writes in to outfile in the form of AIFF
+
+**/
+
 void convertCS229toAIFF(FILE* outfile, FILE* infile){
 	File_Data data;
 	data.samples = -1;
@@ -80,12 +96,17 @@ void convertCS229toAIFF(FILE* outfile, FILE* infile){
 	setupSoundAIFF(outfile, data);
 	writeSamplesAIFF(outfile, data);
 }
+/**
+
+Write the sample data of a cs229 file to a temporary file
+
+**/
 
 File_Data CS229toTemp(FILE* outfile, FILE* infile){
 	File_Data data;
 	data.samples = -1;
 	strncpy(data.format, "CS229", 5);
-		processHeader(infile, &data);
+	processHeader(infile, &data);
 
 	if(!validateData(data)){
 		fprintf(stderr, "Error occured in header.\n");
@@ -97,6 +118,11 @@ File_Data CS229toTemp(FILE* outfile, FILE* infile){
 
 	return data;
 }
+/**
+
+Writes the samples in fileData to the outf in the form CS229
+
+**/
 int writeSamplesCS229(FILE* outf, File_Data fileData){
 	int i, j, k;
 	for(i = 0; i < fileData.samples; i++){
@@ -106,6 +132,11 @@ int writeSamplesCS229(FILE* outf, File_Data fileData){
 		fprintf(outf, "\n");
 	}
 }
+/**
+
+Writes the information of data into the header of outfile in the form of CS229
+
+**/
 void writeHeaderCS229(FILE* outfile, File_Data data){
 	fprintf(outfile, "%s\n", "CS229");
 	fprintf(outfile, "SampleRate %d\n", data.sampleRate);
@@ -114,6 +145,12 @@ void writeHeaderCS229(FILE* outfile, File_Data data){
 	fprintf(outfile, "Samples %d\n", data.samples);
 	fprintf(outfile, "StartData\n");
 }
+/**
+
+Gets the sample data from a CS229 file, assuming the the file is at the start of the samples
+Updates the data.samples catagory if the number of samples was not specified
+
+**/
 void getSamplesCS229(FILE* inf, File_Data *data){
 	fpos_t sampleLocation;
 
@@ -155,10 +192,13 @@ void getSamplesCS229(FILE* inf, File_Data *data){
 		}
 		i++;
 	}
-	if(i != data->samples){
-		data->samples = numSampls;
-	}
 }
+/**
+
+Trims the cs229 sample data for every element in the pointer highlow
+Size is the amount of highlow combinations there are
+
+**/
 void trimCS229(highlow_t *highlow, int size){
 
 	File_Data data;
@@ -179,6 +219,12 @@ void trimCS229(highlow_t *highlow, int size){
 	writeHeaderCS229(stdout, data);
 	writeSamplesCS229(stdout, data);
 }
+/**
+
+Shows the sample data to stdout.
+The specified file should be positioned right after the CS229 to start the file
+
+**/
 File_Data showCS229(FILE* file, int width, int zoom, int chan, int curses){
 	File_Data data;
 	data.samples = -1;
@@ -202,5 +248,4 @@ File_Data showCS229(FILE* file, int width, int zoom, int chan, int curses){
 		showSamplesSTDOUT(data, width, zoom, chan);
 
 	return data;
-
 }

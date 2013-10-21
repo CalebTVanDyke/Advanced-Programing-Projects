@@ -10,6 +10,12 @@
 
 fpos_t SSNDLocation;
 int foundSoundData = 1;
+
+/**
+
+Processes the CommChunk of the file and returns it in the format of CommonChunk
+
+**/
                                          
 CommonChunk processComm(FILE* file){
 	char buff[10];
@@ -54,6 +60,11 @@ CommonChunk processComm(FILE* file){
 	}
 	return comm;
 }
+/**
+
+Gets the samples from an AIFF file and stores them in fileData.sampleData
+
+**/
 void getSamplesAIFF(char * infilepath, File_Data *fileData){
 	
 	fileData->sampleData = malloc(fileData->samples*sizeof(int*));
@@ -122,6 +133,12 @@ void getSamplesAIFF(char * infilepath, File_Data *fileData){
 	fclose(inf);
 }
 
+/**
+
+Writes the samples from data.sampleData 
+in the AIFF format
+
+**/
 int writeSamplesAIFF(FILE* outf, File_Data data){
 	int i, j, k;
 	char bytes[4];
@@ -143,13 +160,23 @@ int writeSamplesAIFF(FILE* outf, File_Data data){
 	}
 }
 
+/**
+
+	Gets the samples from an AIFF file and then writes the samples to outf in the format of CS229
+
+**/
 int processSSND(FILE* outf, char * infilepath, File_Data fileData){
 
 	getSamplesAIFF(infilepath, &fileData);
 	writeSamplesCS229(outf, fileData);
 
 }
+/**
 
+Process the AIFF file.  This method will call processCOMM to handle the COMM section.  
+It will mark the position of the sound file so processSSND and getSamplesAIFF can perform correctly. 
+
+**/
 File_Data processAIFF(FILE *outfile, FILE* infile){
 	int foundComm = 0;
 	int foundSSND = 0;
@@ -231,7 +258,11 @@ File_Data processAIFF(FILE *outfile, FILE* infile){
 		data.success = 1;
 	return data;
 }
+/**
 
+Takes a file infile in the form AIFF and writes it to outfile in the formCS229
+
+**/
 void convertAIFFtoCS229(FILE* outfile, FILE* infile, char * infilepath){
 	File_Data data = processAIFF(outfile, infile);
 	if(data.success == 0){
@@ -241,10 +272,12 @@ void convertAIFFtoCS229(FILE* outfile, FILE* infile, char * infilepath){
 	writeHeaderCS229(outfile, data);
 	processSSND(outfile, infilepath, data);
 }
+/**
 
+Writes the sound data of the AIFF file to a temp file in the CS229 format
+
+**/
 File_Data AIFFtoTemp(FILE* outfile, FILE* infile, char * infilepath){
-
-
 	File_Data data = processAIFF(outfile, infile);
 	if(!validateData(data)){
 		fprintf(stderr, "Error occured in COMM chunk\n");
@@ -253,7 +286,12 @@ File_Data AIFFtoTemp(FILE* outfile, FILE* infile, char * infilepath){
 	processSSND(outfile, infilepath, data);
 	return data;
 }
+/**
 
+Trims the sound data of a AIFF file for every high low combo in highlow
+The size argument specifies how many high low combos are present in highlow
+
+**/
 File_Data trimAIFF(highlow_t* highlow, int size){
 
 	File_Data data = processAIFF(stdout, stdin);
@@ -275,6 +313,14 @@ File_Data trimAIFF(highlow_t* highlow, int size){
 
 	writeSamplesAIFF(stdout, data);
 }
+/**
+
+Sets up the initial part of the SSND chuck from the data.
+This will calculate the size of the chunk, as well as write the other
+parts of the SSND chunk.  When writing to a file this should always be called before writeSamplesAIFF
+otherwise the SSND chunk will not be in the correct format
+
+**/
 void setupSoundAIFF(FILE* outfile, File_Data data){
 
 	char bytes[4];
@@ -297,6 +343,11 @@ void setupSoundAIFF(FILE* outfile, File_Data data){
 	flipBytes(bytes, 4);
 	fwrite(bytes, sizeof(bytes), 1, outfile);
 }
+/**
+
+Writes the header of an AIFF file from the given data
+
+**/
 void writeHeaderAIFF(FILE* outfile, File_Data data){
 	int fileSize = 30 + data.samples * (data.bitDepth/8) * data.channels;
 
@@ -337,6 +388,11 @@ void writeHeaderAIFF(FILE* outfile, File_Data data){
 	flipBytes(buff, 10);
 	fwrite(buff, sizeof(buff), 1, outfile);
 }
+/**
+
+Shows the samples of an AIFF file
+
+**/
 File_Data showAIFF(FILE* file, char* fileName, int width, int zoom, int chan, int curses){
 	File_Data data = processAIFF(stdout, file);
 	if(!validateData(data)){
@@ -355,20 +411,6 @@ File_Data showAIFF(FILE* file, char* fileName, int width, int zoom, int chan, in
 	}
 	else
 		showSamplesSTDOUT(data, width, zoom, chan);
-
-	return data;
-}
-File_Data showAIFFrange(FILE* file, char* fileName, int width, int zoom, int chan, int curses, int start, int end, int topChan, int bottomChan){
-		File_Data data = processAIFF(stdout, file);
-	if(!validateData(data)){
-		if(curses)
-			endwin();
-		fprintf(stderr, "Error occured in COMM chunk\n");
-		exit(-1);
-	}
-	getSamplesAIFF(fileName, &data);
-
-	showSamplesRange(data, width, zoom, chan, curses, start, end, topChan, bottomChan);
 
 	return data;
 }
