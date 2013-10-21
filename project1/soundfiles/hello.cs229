@@ -2,13 +2,8 @@ CS229
 SampleRate 22050
 Channels 1
 BitDepth 16
-Samples 13354
+Samples 13341
 StartData
--6082 
--5847 
-1983 
-2034 
-2119 
 0 
 0 
 0 
@@ -13350,11 +13345,3 @@ StartData
 0 
 0 
 0 
-3115 
-3124 
-3115 
-3124 
-3115 
-3124 
-3115 
-3124 
