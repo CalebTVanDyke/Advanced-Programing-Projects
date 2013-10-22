@@ -5,6 +5,10 @@
 #include <limits.h>
 #include <string.h>
 
+/**
+	Finds the duration of a sound file based on its sampleRate, channes, and number of samples.
+	Returns a string containing a formated version of the time.
+**/
 char* findDuration(int sampleRate, int channels, int samples, char timeStr[]){
 	float seconds = 1 /(sampleRate / (float)samples);
 	int minutes = seconds / 60;
@@ -14,7 +18,9 @@ char* findDuration(int sampleRate, int channels, int samples, char timeStr[]){
 	sprintf(timeStr, "%d:%02d:%05.2f", hours, minutes, seconds);
 	return timeStr;
 }
-
+/**
+	Flips bytes 0-size of the string 
+**/
 char* flipBytes(char* rev, int size){
 	int i = 0;
 	for(i = 0; i < size / 2; i++){
@@ -24,6 +30,10 @@ char* flipBytes(char* rev, int size){
 	}
 	return rev;
 }
+/**
+	trims the string replacing the first '\n' with '\0'
+	returns the index of the replaced character 
+**/
 int trim(char* fileName, int size){
 	int i;
 	for(i = 0; i < size; i++){
@@ -34,12 +44,20 @@ int trim(char* fileName, int size){
 	}
 	return i;
 }
+/**
+	transfers the contents of inf to outf
+**/
 void rewrite(FILE* outf, FILE* inf){
 	int c;
 	while((c = fgetc(inf)) != EOF){
 		fputc(c, outf);
 	}
 }
+/**
+	updates the string format to contain the the type of file the inf is
+	CS229 file: "CS229"
+	AIFF  file: "AIFF"
+**/
 char * getFileType(FILE* inf, char * format){
 	int i;
 	for(i = 0; i < 4; i++){
@@ -58,20 +76,9 @@ char * getFileType(FILE* inf, char * format){
 	}
 	return NULL;
 }
-int countHighLow(int samples ,highlow_t *highlow, int size){
-	int count = 0;
-	int i, j;
-
-	for(i = 0; i < samples; i++){
-		for(j = 0; j < size; j++){
-			if(i >= highlow[j].low  && i <= highlow[j].high){
-				count++;
-				break;
-			}
-		}
-	}
-	return count;
-}
+/**
+	Moves the maxes for the zoomed out part to the top of the samples
+**/
 void moveMaxes(int ***samples, int row, int column, int zoom, File_Data data){
 	int i, j;
 	int maxSamp = INT_MIN;
@@ -82,20 +89,17 @@ void moveMaxes(int ***samples, int row, int column, int zoom, File_Data data){
 	}
 	(*samples)[row][column] = maxSamp;
 }
-void showSamplesSTDOUT(File_Data data, int width, int zoom, int chan){
-	showSamples(data, width, zoom, chan, 0);
-}
-void showSamplesNcurse(File_Data data, int width, int zoom, int chan){
-	showSamples(data, width, zoom, chan, 1);
-}
-
-
-
+/**
+	Shows all samples in data
+**/
 void showSamples(File_Data data, int width, int zoom, int chan, int NCURSES){
 
 	showSamplesRange(data, width, zoom, chan, NCURSES, 0, data.samples, 0 , data.channels);
 
 }
+/**
+	Shows the samples for only a certain range specified by start and end
+**/
 void showSamplesRange(File_Data data, int width, int zoom, int chan, int NCURSES, int start, int end, int topChan, int botChan){
 
 	if(chan > data.channels){
@@ -195,11 +199,18 @@ void showSamplesRange(File_Data data, int width, int zoom, int chan, int NCURSES
 	}
 
 }
+/**
+	Makes sure the the information stored in data is all valid
+**/
 int validateData(File_Data data){
 	return data.channels >= 1 && data.channels <= 32 && 
 		(data.bitDepth == 8 || data.bitDepth == 16 || data.bitDepth == 32) &&
 		data.success; 
 }
+/**
+	Cuts the file from firstMark to lastMark (inclusively) out of the sampleData from data
+	Also updates the duration and number of samples contained in data
+**/
 void cut(File_Data* data, int firstMark, int lastMark){
 	int i, j;
 	int samp = 0;
@@ -222,6 +233,9 @@ void cut(File_Data* data, int firstMark, int lastMark){
 	data->samples = samp;
 	strcpy(findDuration(data->sampleRate, data->channels, data->samples, data->duration), data->duration);
 }
+/**
+	Frees all of the allocated samples from data
+**/
 void freeSamples(File_Data* data){
 	int i, j;
 	for(i = 0; i < data->samples; i++){

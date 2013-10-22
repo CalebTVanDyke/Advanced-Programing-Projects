@@ -118,6 +118,7 @@ void getSamplesAIFF(char * infilepath, File_Data *fileData){
 			for (j = 0; j < fileData->bitDepth / 8; j++){
 				sample[j] = getc(inf);
 			}
+			/** Converts to little endian and then stores it correctly based on the bitDepth **/
 			flipBytes(sample, fileData->bitDepth / 8);
 			if(fileData->bitDepth == 8){
 				fileData->sampleData[i][k] = (int)sample[0];
@@ -234,11 +235,12 @@ File_Data processAIFF(FILE *outfile, FILE* infile){
 			foundComm = 1;
 		}
 		if(strncmp(buff, "SSND", 4) == 0){
+			/*Marks the position of the SSND chunk so it can be processed later*/
 			foundSoundData = fgetpos(infile, &SSNDLocation);
 			foundSSND = 1;
 		}
 		if(strncmp(buff, "COMT", 4) == 0 || strncmp(buff, "ANNO", 4) == 0 ){
-
+			/* Runs through comment chunks */
 			int chunkSize;
 			char sizeBuff[4];
 			for(j = 0; j < 4; j++){
@@ -410,7 +412,7 @@ File_Data showAIFF(FILE* file, char* fileName, int width, int zoom, int chan, in
 		showSamplesRange(data, width, zoom, chan, curses, 0, botSamp, 0, botSamp*(rows - 3) - botSamp * data.channels);
 	}
 	else
-		showSamplesSTDOUT(data, width, zoom, chan);
+		showSamples(data, width, zoom, chan, curses);
 
 	return data;
 }

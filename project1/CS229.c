@@ -245,7 +245,7 @@ File_Data showCS229(FILE* file, int width, int zoom, int chan, int curses){
 		showSamplesRange(data, width, zoom, chan, curses, 0, botSamp, 0, botSamp*(rows - 3) - botSamp * data.channels);
 	}
 	else
-		showSamplesSTDOUT(data, width, zoom, chan);
+		showSamples(data, width, zoom, chan, curses);
 
 	return data;
 }
