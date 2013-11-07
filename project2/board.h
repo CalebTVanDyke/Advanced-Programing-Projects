@@ -4,6 +4,8 @@
 #include "cell.h"
 #include <string>
 #include <iostream>
+#include <stdlib.h>
+
 
 class board
 {

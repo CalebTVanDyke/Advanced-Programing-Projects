@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include "filehandling.h"
 #include <ctype.h>
+#include <string.h>
 
 using namespace std;
 
