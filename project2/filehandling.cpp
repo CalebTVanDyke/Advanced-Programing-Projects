@@ -304,7 +304,7 @@ std::string getStringFromStdIn(){
 	}
 }
 std::string trimQuotes(std::string toTrim){
-	string finalString;
+	std::string finalString;
 	finalString.resize(toTrim.size() - 2);
 	int j = 0;
 	for(int i = 0; i < toTrim.size(); i++){
