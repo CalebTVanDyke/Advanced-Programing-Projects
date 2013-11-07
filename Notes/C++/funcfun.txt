@@ -1,0 +1,174 @@
+Freaky things with functions in C++
+-----------------------------------
+
+(1) Inlined functions
+
+	- Suppose we use an unsigned int to store an array of bits
+
+	- function to get bit
+
+	bool getBit(unsigned int A, int i){
+		return A & (0x01 << i);
+	}
+
+	- 3 assembly instructions for return statement
+	- but many assembly instructions to actually call the function
+
+	* In C
+
+		#define getBit(A, i) ((A) * (0x01 << (i)))
+
+			problems ^
+
+				this is text substitution 
+				there is no type checking
+
+	* In C++
+
+		use "inline functions"
+
+		inline bool getBit(unsigned int A, int i){
+			return A & (0x01 << i);
+		}
+
+		Says: compiler, don't make this a function call, instead insert this code where I called it
+		Acts like a macro but will still have type checking
+
+		Good for functions that compile down to several lines of assembly 
+
+	main:
+
+		for(int b=0; b<32; b++)
+			cout << int(getBit(X, b));
+
+		This will be replaced by:
+
+		for(int b=0; b<32; b++)
+			count << int( X & (0x01 << b) );
+
+	Macro vs Inline:
+		- macros - no typechecking
+		- inlined functions - typechecking, scope, etc. as usual
+
+	inline void swap(int &x, int &y){
+		int t = x;
+		x = y;
+		y = t;
+	}
+	This would be weird with a macro because it has to be multi line
+
+	#define swap(X, Y) do { } while(0)
+
+(2) Function Overloading
+
+	double mySqrt(double x);
+
+	int mySqrt(int x); 
+
+	- In C what does this do?
+
+		this will barf when you try to compile it
+
+	- In C++ what does?
+
+		It's fine, we can have different function with the same name in C++. They must be distinguished by parameters (type and/or number).
+
+	- How does the compiler prevent "duplicate symbol" linker error?
+
+		C++ compilers will "mangle" the name of the function
+
+		mySqrt_d
+		mySqrt_z
+
+		Extra stuff is due to name mangling
+
+	- Extra stuff about name mangling
+		1. Not super important how it works, only to help you decipher beizarre linker error  messages
+		2. Probably not specified in C++ standard how these are mangled
+
+(3) Default parameters
+
+	double mySqrt(double x, int algorithm = 1);
+
+	You can now call:
+
+		mySqrt(2.0);
+
+		or
+
+		mySqrt(2.0, 2);
+
+	Other Stuff:
+
+		default parameters must be "right most"
+
+			//NOT ALLOWED!!!
+
+			double mySqrt(int algo = 1, double x);
+
+		can have more than one default parameter
+
+(4) Overload operators
+
+	I.e.. we can define our own type, ad then define what "+" means for that type.
+
+	How it works:  define a function with the name
+
+	operator$actual operator$
+
+	for example:
+
+		type operator+ (typea A, typeb B)
+
+	will define what it means to do typea + typeb
+
+	Which operators may be overloaded?
+
+		Basically, all. (Exceptions: ".", ?:, sizeof)
+
+		Yes, even:
+
+		+ - / * % & | ^ ! && < > <= >= ++ -- , << >> -> = [] () 
+
+		and more bizarre ones still
+
+	Simple and hopefully clean example:
+
+		struct date {
+			short year;
+			char month;
+			char day;
+		};
+		
+		// Add number of days to the date
+		date operator+(date a, int n){
+
+		}
+
+		int main(){
+			date today = {....};
+			date tomorow = today + 1
+			date next_week = today + 7;
+			date next_year = 365 + today; // This is an error because int + date is not defined
+										  // This is a good place to use in line function to call 
+										  // date + int
+		}
+	Note:
+
+		We can define operators to do "WHATEVER" you want
+
+		We cannot define new operators
+
+		You can overload as few or as many as you would like
+
+			date + int does not automatically give int + date
+
+
+
+
+
+
+
+
+
+

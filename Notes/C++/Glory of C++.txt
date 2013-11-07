@@ -1,0 +1,140 @@
+C++ has "stricter type checking"
+
+For Example:
+
+	enum permission {
+		read = 4, write = 2, execute = 1
+	};
+
+	// In C:
+
+	enum permission p = 47;
+
+	// In C++:
+
+	permission p = 2; // ILLEGAL IN C++
+
+	permission q = write; // OK!
+
+	permission r = permission(2); //Sets to write
+
+(1) C++ is more string about enumerated types
+
+(2) C++ is way more string about pointer assignments
+
+	float f;
+	int * i = &f; //Illegal in C++ legal in C, have t force it
+
+	int* i = (int*) &f; // this is valid in C++;
+
+	Now in C++:
+
+		int* a = (int*) malloc(sizeof(int) * 100);
+
+Things we don't get in C++
+
+(1) other nice data types built into the language
+(2) array bound checking
+(3) automatic garbage collection
+
+BUT:
+	
+(4) C++ language makes it "easy" to define your own types (like strings)
+		--> we have objects now!
+		--> we can overload operators!
+	Someone has done this already! (Standard template library, etc)
+(5) C++ language makes it "easy" to define your own arrays that DO check bounds
+		--> you can build generic "containers"
+
+Some weirdness in C++:
+
+when including some files, you can drop the .h
+
+	#include <iostream>
+
+Speaking of filenames:
+	
+		In C:
+			source file: .c 	header file: .h
+		In C++:
+			source file: 		header file:
+				.c 					.h
+				.cpp				.hh
+				.cxx				.hpp
+				.C					.hxx
+				.c++				.h++
+
+	Like C - absolutely no correspondence between file name and contents
+
+		classes foo, bar, cruft, might be defined in "crazy.h"
+
+Compiling C++:
+
+	* can use gcc
+
+	* or use g++
+
+		- this assumes everything is C++ regardless of extension
+		- better for linking
+
+Proper hello word in C++
+
+#include <iostream>
+
+using namespace std;
+
+int main(){
+	cout << "Hello, world!\n";
+	return 0;
+}
+
+What is happening?!?!
+
+(1) #include <iostream>  why no .h?
+	File is simply named iostream not iostream.h
+
+(2) using namespace std;
+		- That's obviously a namespace
+		- collection of "global stuff"
+		- so we can avoid name clashes
+		- the namespace "std" has "cout" in it
+
+(3) int main : exactly the same as C
+
+(4) cout: C++ style I/O
+		<< means: bit shift as usual, if it's an integer
+				  send output to a stream, if it's an output stream
+
+Stream I/O in C++:
+
+	(output stream) << "PRINT STUFF " << 5 << "more stuff " << x << '\n';
+
+	w/o using namespace std
+
+	std::cout << "blah";
+
+	cerr << "Malloc fail!\n";
+
+What about input?
+
+	switch direction of arrows
+
+	std::cin >> N;
+
+I/O streams are objects,
+For now - how to call a method of an object
+
+	object.method();
+
+	or
+
+	object->method();
+
+EOF on a stream:
+
+	(1) you can say "if(cin) {/*not eof or other error yet*/}"
+	
+	(2)	or you can se " if(!cin.eof)........ "
+
+
+

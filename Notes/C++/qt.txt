@@ -1,0 +1,11 @@
+makes its own make file
+
+qmake -project
+
+qmake-qt4 -project
+
+qmake foobar.pro
+
+X11 need X server to run program remotely
+
+ssh -Y

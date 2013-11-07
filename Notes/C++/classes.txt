@@ -1,0 +1,148 @@
+Classes in C++
+--------------
+
+How they work:
+
+	Exactly the same as structs.
+
+So we can say
+
+	class data {
+		short year;
+		char month;
+		char day;
+	};
+
+We can control the visibility of items in a class.
+
+How this works in C++:
+
+	put the keyword public, private, or protected, followed by :
+	this says, "from now on, everything is what you said it was"
+
+Difference between class and struct:
+
+	struct {
+
+	};
+
+	=
+
+	class {
+		public:
+
+	};
+
+AND 
+	
+	clas {
+
+	};
+
+	=
+
+	struct {
+		private: 
+
+	}
+
+	class:  default is "everything private"
+	struct: default is "everything public"
+
+class crazy {
+	//everything here is private
+
+	int a;
+	void* b;
+
+	protected:
+		int c;
+
+	public:
+		float d;
+		float f;
+}
+struct crazy {
+	private:
+
+	// copy and pasta from above
+}
+
+class data {
+		short year;
+		char month;
+		char day;
+
+	public:
+		inline int getDay() cont {
+			return day;
+		}
+		/* What is this ?????? */
+		/* This method does not modify the date */
+		/* we may call these when we have const objects */
+		inline void setDay(int d) {
+			day = d;
+		}
+}
+ ------------------------------------
+|INLINE FUNCTIONS GO IN HEADER FILES|
+ ------------------------------------
+
+Memory Allocation
+-----------------
+
+date* dp = (date*) malloc(sizeof(date));
+
+//This does not call the constructor!
+
+*dp = date(3, 4, 2014);
+
+// UGLY!
+
+//IN C if this were a struct:
+
+	date today;
+	today.year = ......
+
+	*dp = today;
+
+	when today goes out of scope stuff is coppied into dp;
+
+....
+
+	boundedVar* bvp = (boundedVar*) malloc(sizeof(boundedVar));
+
+	// This does not call constructor so the reference is never initialized in bvp
+
+Fix - in C++ use the "new" operator
+
+	date* dp = new date(3, 14, 2014);
+
+	//If new fails probably, throws an exception
+
+	Using new for arrays:
+
+	int* A = new int[1000];
+
+	date* dp = (date*) malloc(100 * sizeof(date));
+	//BAD
+	//With new
+
+	date* dp = new date[100];
+	// This will fail because there is no default constructor / empty constructor
+	// Builds the array, and calls the empty constructor for each element
+
+Delete
+	
+	- used this after new to "free" the memory you allocated
+	date* dp = new date(...);
+
+	/////
+
+	delete dp;
+
+	int* a = new int[5000];
+
+	......
+
+	delete [] a;

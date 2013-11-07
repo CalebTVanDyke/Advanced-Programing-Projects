@@ -1,0 +1,206 @@
+Other things about classes
+
+(1) Static variable
+	- See file pertaining to static variable (static.txt)
+
+(2) Friends!
+	- only "public" methods / members are visible outside a class
+	- How can we make private things visible?
+
+		* crazy C++ kludge involving casting of pointers
+
+			- make struct with same stuff as class and caste class to struct
+
+		* let's declare some friends
+
+	- Friends are declared inside the class
+		* declared inside the class
+		* this thing is allowed to access my protected and/or private members and methods
+		* can be functions, methods, of a class or an entire class
+		* classes should not have too many friends
+	Example:
+
+		class date {
+
+			...
+
+			//Only this method can access the privates of this class
+			friend void clock::advance(int ms);
+
+			//Can modify private memebers of this date
+			friend void getDateFromSystemClock(date &d);
+
+			//Every method in calender can access the private stuff of date
+			friend class calender;
+
+		}
+
+(3) this pointer
+	- "this" is an implicit pointer to the object itself
+	- can be dereferenced
+	- in "const" methods it is a "const" pointer
+	- can I refer to "this" in a static method? NOPE!
+	- things can be accessed with this->member/method
+
+
+	class foo {
+		...
+		void printAddress();
+		foo& selfReference();
+
+	};
+
+	void foo::printAddress(){
+		cout << "Object address is: " << this << '\n';
+	}
+	foo& foo::selfreference();
+		return *this;
+	}
+
+(4) Pointers in classes
+	- all the fun of pointers but inside a class
+	- pointers in classes makes life fun.
+	- RUNNING EXAMPLE
+
+		Let's build a nice string class
+
+		Wish list for our string class:
+
+			- "automatic" memory allocation and recyling and all that stuff about memory
+				* class takes care of new/delete
+			- assignment, copying, append
+			- overload operators: = + += < <= == != 
+			- access and perhaps modify individual characters using []
+			- substrings
+			- length() method
+			- I/O using << >>
+	class string {
+		public:
+			string();
+
+			string(const char* s);
+
+			inline int length() const {
+				return data ? strlen(data) : 0;
+			}
+
+			inline const char* str() const {
+				return data;
+			}
+
+			//other things later
+
+		private:
+			char* data;
+	}
+
+	std::ostream& operator<< (std::ostream &s, const string &str){
+		return s << str.str() ? str.str() : "";
+	}
+	string::string(){
+		data = 0;
+	}
+	string::string(cont char* s){
+		data = strdup(s);
+	}
+
+(5) Destructors
+
+	- called when an object is destroyed
+	- normally don't have to do this by hand
+	- any allocated memory should be released here
+	- may only have one destructor
+	- destructors take no parameters
+	- name is "~classname"
+	- do not have a return type;
+
+	class string {
+		////
+		public:
+			~string();
+	};
+
+	string::~string(){
+		free(data);
+	}
+
+	VERY VERY RARELY (i.e.., "never") call the destructor by hand
+
+	This is called automatically whenever :
+
+		(a) an object on the runtime stack goes out of scope
+		(b) when you delete[] an array of object the destructor is called for each object
+		(c) if you delete a pointer to an object , its destructor is called
+		(d) delete[] deletes them in reverse order
+
+Write the "<" operator for the string class:
+
+	(1) like we know so far
+
+	bool operator< (const string &s1, const string &s2){
+		return strcmp(s1.str(), s2.str()) < 0; 
+	}
+
+	(2) inside the class
+
+	class string {
+		public:
+			bool operator<(const string &s2) const;
+	};
+	bool operator< (const string &s2){
+		return strcmp(str(), s2.str()) < 0; 
+	}
+
+Both of these let us do the same thing
+Differences::
+
+	(1) Method 2 (inside the class) can access private/protected stuff
+		Method 1 can not unless we make it a friend
+	(2) Method 2 can be made private 
+		If so then only the class itself and friend can do "a" < "b"
+
+(6) = operator
+
+	The joy of C:
+
+		We can copy entire structs with =
+
+	What aboue c++:
+
+		Same thing, sort of
+
+			class foo{...};
+
+			foo x, y;
+
+			can I do
+				x = y?
+
+			Answer it depends:
+
+				(1) if there's no = operator overloaded for the class, then yes and it acts just like a c struct;
+				(2) if there is an = operator overloaded, and it's public, then yes and it calls the operator (function)
+				(3) private = operator : then no!
+
+	If we don't override it for our string class then the char * data field will be pointed to the same allocated memory
+
+	In otherwords it does a shallow copy NOT a deep copy
+
+Back to string class:
+
+	define a sane = operator 
+	otherwise we will get malloc errors (because we free same pointer twice)
+
+	class string {
+
+		void operator=(const string &s){
+			if(&s != this){
+				free(data);
+				data = strdup(s.str());
+			}
+			// This if statement makes sure that you are not doing s = s
+		}
+
+	}
+
+
