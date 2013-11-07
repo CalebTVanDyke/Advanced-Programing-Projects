@@ -8,7 +8,7 @@
 using namespace std::tr1;
 
 
-board stringToBoard(string fileInfo){
+board stringToBoard(std::string fileInfo){
 	int err;
 
 	regex reName("Name[^;]+");
