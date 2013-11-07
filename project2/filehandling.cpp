@@ -94,7 +94,7 @@ board stringToBoard(string fileInfo){
 	}
 	int alive = 64, dead = 126;
 
-	char * aliveLoc = strstr(container.str().c_str(), "Alive=");
+	const char * aliveLoc = strstr(container.str().c_str(), "Alive=");
 	if(aliveLoc){
 		if((err = sscanf(aliveLoc, "Alive=%d", &alive)) != 1){
 			cerr << "Error reading Alive value from Chars portion, default will be used" << '\n';
@@ -104,7 +104,7 @@ board stringToBoard(string fileInfo){
 		cerr << "Could not find location of Alive value, default will be used" << '\n';
 		alive = 64;
 	}
-	char * deadLoc = strstr(container.str().c_str(), "Dead=");
+	const char * deadLoc = strstr(container.str().c_str(), "Dead=");
 	if(deadLoc){
 		if((sscanf(deadLoc, "Dead=%d", &dead)) != 1){
 			cerr << "Error reading Dead value from Chars portion. default will be used" << '\n';
