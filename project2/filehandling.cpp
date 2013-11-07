@@ -4,7 +4,6 @@
 #include <fstream>
 #include <stdlib.h>
 #include <iostream>
-#include <string>
 
 using namespace std::tr1;
 
@@ -31,7 +30,7 @@ board stringToBoard(string fileInfo){
 	smatch container;
 	
 	//Handles retrieval of name from the string containing the file
-	string name = "";
+	std::string name = "";
 	regex_search(fileInfo, container, reName);
 	if(container.size() == 1){
 		regex_search(container[0].str(), container, reQuotes);
@@ -57,7 +56,7 @@ board stringToBoard(string fileInfo){
 		cerr << "Error with the Xrange portion of terrain" << '\n';
 		throw -1;
 	}
-	string x = xrange.str();
+	std::string x = xrange.str();
 
 	smatch yrange;
 	regex_search(container[0].str(), yrange, reYrange);
@@ -70,7 +69,7 @@ board stringToBoard(string fileInfo){
 		cerr << "Error with the Yrange portion of terrain" << '\n';
 		throw -1;
 	}
-	string y = yrange.str();
+	std::string y = yrange.str();
 
 	int xlow;
 	int xhigh;
@@ -132,7 +131,7 @@ board stringToBoard(string fileInfo){
 			cerr << "Error with the Xrange portion of terrain" << '\n';
 			throw -1;
 		}
-		string x = xrange.str();
+		std::string x = xrange.str();
 
 		smatch yrange;
 		regex_search(container[0].str(), yrange, reYrange);
@@ -145,7 +144,7 @@ board stringToBoard(string fileInfo){
 			cerr << "Error with the Yrange portion of terrain" << '\n';
 			throw -1;
 		}
-		string y = yrange.str();
+		std::string y = yrange.str();
 
 		int xlow = gameBoard.getXMin();
 		int xhigh = gameBoard.getXMax();
@@ -190,8 +189,8 @@ board stringToBoard(string fileInfo){
 	smatch aliveMatch;
 	smatch deadMatch;
 
-	string aliveColor;
-	string deadColor;
+	std::string aliveColor;
+	std::string deadColor;
 	//Alive color
 
 	int r, g, b;
@@ -251,9 +250,9 @@ board stringToBoard(string fileInfo){
 		cerr << "Error with Initial portion\n";
 		throw -1;
 	}
-	string temp = container.str();
-	regex_iterator<string::iterator> regit (temp.begin(), temp.end(), reParens);
-	regex_iterator<string::iterator> end;
+	std::string temp = container.str();
+	regex_iterator<std::string::iterator> regit (temp.begin(), temp.end(), reParens);
+	regex_iterator<std::string::iterator> end;
 
 	while(regit != end){
 		int xc;
@@ -273,10 +272,10 @@ board stringToBoard(string fileInfo){
 }
 
 
-string getStringFromFile(const char *filename){
+std::string getStringFromFile(const char *filename){
 	ifstream inf(filename);
 	if(inf){
-		string fileData;
+		std::string fileData;
 		inf.seekg(0, ios::end);
 		fileData.resize(inf.tellg());
 		inf.seekg(0, ios::beg);
@@ -288,9 +287,9 @@ string getStringFromFile(const char *filename){
 		throw -1;
 	}
 }
-string getStringFromStdIn(){
+std::string getStringFromStdIn(){
 	try{
-		string fileData = "";
+		std::string fileData = "";
 		char c;
 		int i = 0;
 		cin.get(c);
@@ -304,7 +303,7 @@ string getStringFromStdIn(){
 		throw -1;
 	}
 }
-string trimQuotes(string toTrim){
+std::string trimQuotes(std::string toTrim){
 	string finalString;
 	finalString.resize(toTrim.size() - 2);
 	int j = 0;
@@ -316,8 +315,8 @@ string trimQuotes(string toTrim){
 	}
 	return finalString;
 }
-string compress(string data){
-	string noComm;
+std::string compress(std::string data){
+	std::string noComm;
 	noComm.resize(data.size());
 	bool isComment = false;
 	bool inQoutes = false;
