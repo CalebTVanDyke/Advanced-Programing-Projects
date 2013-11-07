@@ -1,5 +1,8 @@
 all: life
 
+clean:
+	rm -rf life.o cell.o board.o life filehandling.o
+
 life: life.o cell.o board.o filehandling.o
 	g++ -g -o life life.o cell.o board.o filehandling.o
 
