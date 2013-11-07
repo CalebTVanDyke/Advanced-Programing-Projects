@@ -1,5 +1,5 @@
 #include "filehandling.h"
-#include <regex.h>
+#include <regex>
 #include <string>
 #include <fstream>
 #include <stdlib.h>
