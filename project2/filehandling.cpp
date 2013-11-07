@@ -273,12 +273,12 @@ board stringToBoard(std::string fileInfo){
 
 
 std::string getStringFromFile(const char *filename){
-	ifstream inf(filename);
+	std::ifstream inf(filename);
 	if(inf){
 		std::string fileData;
-		inf.seekg(0, ios::end);
+		inf.seekg(0, std::ios::end);
 		fileData.resize(inf.tellg());
-		inf.seekg(0, ios::beg);
+		inf.seekg(0, std::ios::beg);
 		inf.read(&fileData[0], fileData.size());
 		inf.close();
 		return fileData;
