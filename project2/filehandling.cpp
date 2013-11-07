@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <iostream>
 
-using namespace std;
+using namespace std::tr1;
 
 
 board stringToBoard(string fileInfo){
