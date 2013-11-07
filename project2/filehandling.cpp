@@ -29,7 +29,7 @@ board stringToBoard(string fileInfo){
 	boost::regex reParens("\\([^\\)]+\\)");
 	fileInfo = compress(fileInfo);
 
-	smatch container;
+	boost::smatch container;
 	
 	//Handles retrieval of name from the string containing the file
 	string name = "";
@@ -47,7 +47,7 @@ board stringToBoard(string fileInfo){
 		cerr << "Error with the terrain portion" << '\n';
 		throw -1;
 	}
-	smatch xrange;
+	boost::smatch xrange;
 	boost::regex_search(container[0].str(), xrange, reXrange);
 	if(xrange.size() != 1){
 		cerr << "Error with the Xrange portion of terrain" << '\n';
@@ -60,7 +60,7 @@ board stringToBoard(string fileInfo){
 	}
 	string x = xrange.str();
 
-	smatch yrange;
+	boost::smatch yrange;
 	boost::regex_search(container[0].str(), yrange, reYrange);
 	if(xrange.size() != 1){
 		cerr << "Error with the Yrange portion of terrain" << '\n';
@@ -122,7 +122,7 @@ board stringToBoard(string fileInfo){
 	boost::regex_search(fileInfo, container, reWindow);
 	if(container.size() == 1){
 
-		smatch xrange;
+		boost::smatch xrange;
 		boost::regex_search(container[0].str(), xrange, reXrange);
 		if(xrange.size() != 1){
 			cerr << "Error with the Xrange portion of terrain" << '\n';
@@ -135,7 +135,7 @@ board stringToBoard(string fileInfo){
 		}
 		string x = xrange.str();
 
-		smatch yrange;
+		boost::smatch yrange;
 		boost::regex_search(container[0].str(), yrange, reYrange);
 		if(xrange.size() != 1){
 			cerr << "Error with the Yrange portion of terrain" << '\n';
@@ -188,8 +188,8 @@ board stringToBoard(string fileInfo){
 		cerr << "Error with the Colors portion" << '\n';
 		throw -1;
 	}
-	smatch aliveMatch;
-	smatch deadMatch;
+	boost::smatch aliveMatch;
+	boost::smatch deadMatch;
 
 	string aliveColor;
 	string deadColor;
