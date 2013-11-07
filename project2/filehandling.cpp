@@ -1,5 +1,5 @@
 #include "filehandling.h"
-#include <regex>
+#include <boost/regex.hpp>
 #include <string>
 #include <fstream>
 #include <stdlib.h>
@@ -13,20 +13,20 @@ using namespace std;
 board stringToBoard(string fileInfo){
 	int err;
 
-	regex reName("Name[^;]+");
-	regex reQuotes("\"[^\"]+\"");
-	regex reTerrain("Terrain[^}]+\\}");
-	regex reWindow("Window[^}]+\\}");
+	boost::regex reName("Name[^;]+");
+	boost::regex reQuotes("\"[^\"]+\"");
+	boost::regex reTerrain("Terrain[^}]+\\}");
+	boost::regex reWindow("Window[^}]+\\}");
 
-	regex reChars("Chars[^}]+\\}");
-	regex reColors("Colors[^}]+\\}");
-	regex reInitial("Initial[^}]+\\}");
-	regex reXrange("Xrange[^;]+\\;");
-	regex reYrange("Yrange[^;]+\\;");
-	regex reLowHigh("-?[0-9]+\\.\\.[0-9]+");
-	regex reAlive("Alive[^;]+;");
-	regex reDead("Dead[^;]+;");
-	regex reParens("\\([^\\)]+\\)");
+	boost::regex reChars("Chars[^}]+\\}");
+	boost::regex reColors("Colors[^}]+\\}");
+	boost::regex reInitial("Initial[^}]+\\}");
+	boost::regex reXrange("Xrange[^;]+\\;");
+	boost::regex reYrange("Yrange[^;]+\\;");
+	boost::regex reLowHigh("-?[0-9]+\\.\\.[0-9]+");
+	boost::regex reAlive("Alive[^;]+;");
+	boost::regex reDead("Dead[^;]+;");
+	boost::regex reParens("\\([^\\)]+\\)");
 	fileInfo = compress(fileInfo);
 
 	smatch container;
@@ -35,25 +35,25 @@ board stringToBoard(string fileInfo){
 	string name = "";
 	regex_search(fileInfo, container, reName);
 	if(container.size() == 1){
-		regex_search(container[0].str(), container, reQuotes);
+		boost::regex_search(container[0].str(), container, reQuotes);
 		if(container.size() == 1){
 			name = trimQuotes(container[0].str());
 		}
 	}
 
 	//Handles retrieval of Terrain information from the string containing the file
-	regex_search(fileInfo, container, reTerrain);
+	boost::regex_search(fileInfo, container, reTerrain);
 	if(container.size() != 1){
 		cerr << "Error with the terrain portion" << '\n';
 		throw -1;
 	}
 	smatch xrange;
-	regex_search(container[0].str(), xrange, reXrange);
+	boost::regex_search(container[0].str(), xrange, reXrange);
 	if(xrange.size() != 1){
 		cerr << "Error with the Xrange portion of terrain" << '\n';
 		throw -1;
 	}
-	regex_search(xrange[0].str(), xrange, reLowHigh);
+	boost::regex_search(xrange[0].str(), xrange, reLowHigh);
 	if(xrange.size() != 1){
 		cerr << "Error with the Xrange portion of terrain" << '\n';
 		throw -1;
@@ -61,12 +61,12 @@ board stringToBoard(string fileInfo){
 	string x = xrange.str();
 
 	smatch yrange;
-	regex_search(container[0].str(), yrange, reYrange);
+	boost::regex_search(container[0].str(), yrange, reYrange);
 	if(xrange.size() != 1){
 		cerr << "Error with the Yrange portion of terrain" << '\n';
 		throw -1;
 	}
-	regex_search(yrange[0].str(), yrange, reLowHigh);
+	boost::regex_search(yrange[0].str(), yrange, reLowHigh);
 	if(xrange.size() != 1){
 		cerr << "Error with the Yrange portion of terrain" << '\n';
 		throw -1;
@@ -87,7 +87,7 @@ board stringToBoard(string fileInfo){
 	}
 
 	//Handles retrieval of Chars information from the string containing the file
-	regex_search(fileInfo, container, reChars);
+	boost::regex_search(fileInfo, container, reChars);
 	if(container.size() != 1){
 		cerr << "Error with the Chars portion" << '\n';
 		throw -1;
@@ -119,16 +119,16 @@ board stringToBoard(string fileInfo){
 	board gameBoard(name, xhigh, xlow, yhigh, ylow, (char) alive, (char) dead);
 
 	//Handles retrieval of Window information from the string containing the file
-	regex_search(fileInfo, container, reWindow);
+	boost::regex_search(fileInfo, container, reWindow);
 	if(container.size() == 1){
 
 		smatch xrange;
-		regex_search(container[0].str(), xrange, reXrange);
+		boost::regex_search(container[0].str(), xrange, reXrange);
 		if(xrange.size() != 1){
 			cerr << "Error with the Xrange portion of terrain" << '\n';
 			throw -1;
 		}
-		regex_search(xrange[0].str(), xrange, reLowHigh);
+		boost::regex_search(xrange[0].str(), xrange, reLowHigh);
 		if(xrange.size() != 1){
 			cerr << "Error with the Xrange portion of terrain" << '\n';
 			throw -1;
@@ -136,12 +136,12 @@ board stringToBoard(string fileInfo){
 		string x = xrange.str();
 
 		smatch yrange;
-		regex_search(container[0].str(), yrange, reYrange);
+		boost::regex_search(container[0].str(), yrange, reYrange);
 		if(xrange.size() != 1){
 			cerr << "Error with the Yrange portion of terrain" << '\n';
 			throw -1;
 		}
-		regex_search(yrange[0].str(), yrange, reLowHigh);
+		boost::regex_search(yrange[0].str(), yrange, reLowHigh);
 		if(xrange.size() != 1){
 			cerr << "Error with the Yrange portion of terrain" << '\n';
 			throw -1;
@@ -183,7 +183,7 @@ board stringToBoard(string fileInfo){
 	}
 
 	//Handles retrieval of Colors information from the string containing the file
-	regex_search(fileInfo, container, reColors);
+	boost::regex_search(fileInfo, container, reColors);
 	if(container.size() != 1){
 		cerr << "Error with the Colors portion" << '\n';
 		throw -1;
@@ -196,10 +196,10 @@ board stringToBoard(string fileInfo){
 	//Alive color
 
 	int r, g, b;
-	regex_search(container[0].str(), aliveMatch, reAlive);
+	boost::regex_search(container[0].str(), aliveMatch, reAlive);
 	if(aliveMatch.size() == 1){
 
-		regex_search(aliveMatch[0].str(), aliveMatch, reParens);
+		boost::regex_search(aliveMatch[0].str(), aliveMatch, reParens);
 		if(aliveMatch.size() != 1){ 
 			cerr << "Error attempting to read Alive color value from Colors portion, default will be used" << '\n';
 			gameBoard.setAliveColor(255, 255, 255);
@@ -223,9 +223,9 @@ board stringToBoard(string fileInfo){
 	}
 
 	//Dead color
-	regex_search(container[0].str(), deadMatch, reDead);
+	boost::regex_search(container[0].str(), deadMatch, reDead);
 	if(deadMatch.size() == 1){
-		regex_search(deadMatch[0].str(), deadMatch, reParens);
+		boost::regex_search(deadMatch[0].str(), deadMatch, reParens);
 		if(deadMatch.size() != 1){
 			cerr << "Error attempting to read Dead color value from Colors portion, default will be used" << '\n';
 			gameBoard.setDeadColor(64 , 64, 64);
@@ -247,14 +247,14 @@ board stringToBoard(string fileInfo){
 	}
 
 	//Handles retrieval of Initial information from the string containing the file
-	regex_search(fileInfo, container, reInitial);
+	boost::regex_search(fileInfo, container, reInitial);
 	if(container.size() != 1){
 		cerr << "Error with Initial portion\n";
 		throw -1;
 	}
 	string temp = container.str();
-	regex_iterator<string::iterator> regit (temp.begin(), temp.end(), reParens);
-	regex_iterator<string::iterator> end;
+	boost::regex_iterator<string::iterator> regit (temp.begin(), temp.end(), reParens);
+	boost::regex_iterator<string::iterator> end;
 
 	while(regit != end){
 		int xc;
