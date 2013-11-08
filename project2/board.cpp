@@ -243,8 +243,8 @@ void board::setWinWidth(int wxmax, int wxmin){
 	if(wxmax <= xmax){
 		winXmax = wxmax;
 	}
-	if(wxmin <= xmin){
-		winXmin = xmin;
+	if(wxmin >= xmin){
+		winXmin = wxmin;
 	}
 }
 void board::setWinHeight(int wymax, int wymin){

@@ -4,7 +4,7 @@ clean:
 	rm -rf life.o cell.o board.o life filehandling.o
 
 life: life.o cell.o board.o filehandling.o
-	g++ -g -o life life.o cell.o board.o filehandling.o -llibboost_regex-mt
+	g++ -g -o life life.o cell.o board.o filehandling.o -lboost_regex-mt
 
 life.o: life.cpp board.h cell.h
 	g++ -c -g life.cpp
@@ -16,4 +16,4 @@ board.o: board.cpp board.h
 	g++ -c -g board.cpp
 
 filehandling.o: filehandling.cpp filehandling.h
-	g++ -c -g filehandling.cpp -llibboost_regex-mt
+	g++ -c -g filehandling.cpp

@@ -17,7 +17,6 @@ board stringToBoard(string fileInfo){
 	boost::regex reQuotes("\"[^\"]+\"");
 	boost::regex reTerrain("Terrain[^}]+\\}");
 	boost::regex reWindow("Window[^}]+\\}");
-
 	boost::regex reChars("Chars[^}]+\\}");
 	boost::regex reColors("Colors[^}]+\\}");
 	boost::regex reInitial("Initial[^}]+\\}");
@@ -29,8 +28,9 @@ board stringToBoard(string fileInfo){
 	boost::regex reParens("\\([^\\)]+\\)");
 	fileInfo = compress(fileInfo);
 
+
 	boost::smatch container;
-	
+
 	//Handles retrieval of name from the string containing the file
 	string name = "";
 	regex_search(fileInfo, container, reName);
@@ -117,13 +117,13 @@ board stringToBoard(string fileInfo){
 
 	//SETS UP BOARD WITH PROVIDED INFORMATION
 	board gameBoard(name, xhigh, xlow, yhigh, ylow, (char) alive, (char) dead);
-
 	//Handles retrieval of Window information from the string containing the file
-	boost::regex_search(fileInfo, container, reWindow);
-	if(container.size() == 1){
+	boost::smatch newCont;
+	boost::regex_search(fileInfo, newCont, reWindow);
+	if(newCont.size() == 1 && newCont[0].matched){
 
 		boost::smatch xrange;
-		boost::regex_search(container[0].str(), xrange, reXrange);
+		boost::regex_search(newCont[0].str(), xrange, reXrange);
 		if(xrange.size() != 1){
 			cerr << "Error with the Xrange portion of terrain" << '\n';
 			throw -1;
@@ -136,7 +136,7 @@ board stringToBoard(string fileInfo){
 		string x = xrange.str();
 
 		boost::smatch yrange;
-		boost::regex_search(container[0].str(), yrange, reYrange);
+		boost::regex_search(newCont[0].str(), yrange, reYrange);
 		if(xrange.size() != 1){
 			cerr << "Error with the Yrange portion of terrain" << '\n';
 			throw -1;
@@ -194,7 +194,6 @@ board stringToBoard(string fileInfo){
 	string aliveColor;
 	string deadColor;
 	//Alive color
-
 	int r, g, b;
 	boost::regex_search(container[0].str(), aliveMatch, reAlive);
 	if(aliveMatch.size() == 1){
@@ -218,7 +217,7 @@ board stringToBoard(string fileInfo){
 		}
 		
 	}else{
-		cout << "Alive portion not found, default color will be used\n";
+		cerr << "Alive portion not found, default color will be used\n";
 		gameBoard.setAliveColor(255, 255, 255);
 	}
 
