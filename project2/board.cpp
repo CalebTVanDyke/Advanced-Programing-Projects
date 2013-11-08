@@ -260,7 +260,7 @@ void board::setWinHeight(int wymax, int wymin){
 		std::cerr << "New window Y max value was out of range of the terrain, max terrain Y value will be used\n";
 		winYmax = ymax;
 	}
-	if(wymax >= ymin){
+	if(wymin >= ymin){
 		winYmin = wymin;
 	}else{
 		std::cerr << "New window Y min value was out of range of the terrain, min terrain Y value will be used\n";
