@@ -121,7 +121,6 @@ board stringToBoard(string fileInfo){
 	boost::smatch newCont;
 	boost::regex_search(fileInfo, newCont, reWindow);
 	if(newCont.size() == 1 && newCont[0].matched){
-
 		boost::smatch xrange;
 		boost::regex_search(newCont[0].str(), xrange, reXrange);
 		if(xrange.size() != 1){

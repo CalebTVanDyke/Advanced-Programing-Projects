@@ -242,16 +242,28 @@ void board::initializeCells(){
 void board::setWinWidth(int wxmax, int wxmin){
 	if(wxmax <= xmax){
 		winXmax = wxmax;
+	}else{
+		std::cerr << "New window X max value was out of range of the terrain, max terrain X value will be used\n";
+		winXmax = xmax;
 	}
 	if(wxmin >= xmin){
 		winXmin = wxmin;
+	}else{
+		std::cerr << "New window Y min value was out of range of the terrain, min terrain X value will be used\n";
+		winXmin = xmin;
 	}
 }
 void board::setWinHeight(int wymax, int wymin){
 	if(wymax <= ymax){
 		winYmax = wymax;
+	}else{
+		std::cerr << "New window Y max value was out of range of the terrain, max terrain Y value will be used\n";
+		winYmax = ymax;
 	}
 	if(wymax >= ymin){
 		winYmin = wymin;
+	}else{
+		std::cerr << "New window Y min value was out of range of the terrain, min terrain Y value will be used\n";
+		winYmin = ymin;
 	}
 }
