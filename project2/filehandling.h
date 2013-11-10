@@ -9,5 +9,6 @@ std::string getStringFromFile(const char *filename);
 std::string trimQuotes(std::string toTrim);
 std::string compress(std::string data);
 std::string getStringFromStdIn();
+void updateBoardWithCommands(board * gameBoard, int argc, char *argv[]);
 
 #endif

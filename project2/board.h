@@ -58,12 +58,21 @@ public:
 	inline int getYMax(){ return ymax; }
 	inline void setXMin(int x){ xmin = x; }
 	inline void setYMin(int y){ ymin = y; }
+	inline void setXMax(int x){ xmax = x; }
+	inline void setYMax(int y){ ymax = y; }
+
+	inline int getWinXMin(){ return winXmin; }
+	inline int getWinYMin(){ return winYmin; }
+	inline int getWinXMax(){ return winXmax; }
+	inline int getWinYMax(){ return winYmax; }
 	std::string toString();
 	std::string toFile();
-	void updateTerrain(int xhigh, int xlow, int yhigh, int ylow);
-private:
 	inline int computeX(int x){ return x - xmin; }
 	inline int computeY(int y){ return abs(y - ymax); }
+	void updateTerrain(int xhigh, int xlow, int yhigh, int ylow);
+	int getWinHeight();
+	int getWinWidth();
+private:
 	void initializeCells();
 
 void printArray();

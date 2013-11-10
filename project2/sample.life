@@ -16,8 +16,8 @@ Alive = 64; # ASCII code for @
 Dead = 126; # ASCII code for ~
 };
 Colors = {
-Alive = (255, 255, 255); # White
-Dead = (64, 64, 64); # Dark grey
+Alive = (170, 0, 255); # White
+Dead = (89, 48, 1); # Dark grey
 };
 Initial = {
 # Set coordinates of the alive cells

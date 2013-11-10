@@ -1,0 +1,3 @@
+xh: 10 xl:-10
+10
+Life={Name="Figure 3 example";Terrain={Xrange=-10..10;Yrange=-10..10;};Window={Xrange=-10..10;Yrange={-10..10;};Chars={Alive=64;Dead=126;};Colors={Alive=(170,0,255);Dead=(89,48,1);};Initial={(-1,2)(-2,1)(-1,1)(2,-1)(3,-1)(4,-1);};};

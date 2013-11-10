@@ -291,7 +291,6 @@ string getStringFromStdIn(){
 	try{
 		string fileData = "";
 		char c;
-		int i = 0;
 		cin.get(c);
 		while(!cin.eof()){
 			fileData += c;
@@ -307,7 +306,7 @@ string trimQuotes(string toTrim){
 	string finalString;
 	finalString.resize(toTrim.size() - 2);
 	int j = 0;
-	for(int i = 0; i < toTrim.size(); i++){
+	for(unsigned int i = 0; i < toTrim.size(); i++){
 		if('\"' != toTrim[i]){
 			finalString[j] = toTrim[i];
 			j++;
@@ -321,7 +320,7 @@ string compress(string data){
 	bool isComment = false;
 	bool inQoutes = false;
 	int j = 0;
-	for(int i = 0; i < data.size(); i++){
+	for(unsigned int i = 0; i < data.size(); i++){
 		if('#' == data[i] && !inQoutes){
 			isComment = true;
 		}
@@ -345,4 +344,99 @@ string compress(string data){
 	}
 	noComm[j] = '\0';
 	return noComm;
+}
+void updateBoardWithCommands(board * gameBoard, int argc, char *argv[]){
+	int generations = 0;
+	int txIndex = -1, tyIndex = -1, wyIndex = -1, wxIndex = -1;
+	int updateTer = 0, updateWin = 0;
+
+	int yh, yl, err, xl, xh;
+	for (int i = 1; i < argc; ++i)
+	{
+		if('-' == argv[i][0]){
+			int len = strlen(argv[i]);
+			for (int j = 1; j < len; ++j)
+			{
+				if('g' == argv[i][j]){
+					if(i + 1 < argc){
+						++i;
+						if(!isdigit(argv[i][0])){
+							cerr << "Not a valid digit after -g for generations. Default of 0 will be used.\n";
+						}else{
+							generations = atoi(argv[i]);
+						}
+					}else{
+						cerr << "Value needs to be specified after -g.\n";
+					}
+					break;
+				}
+				else if('t' == argv[i][j]){
+
+					if(j + 1 < len && 'y' == argv[i][j + 1]){
+						tyIndex = ++i;
+						updateTer = 1;
+					}
+					else if(j + 1 < len && 'x' == argv[i][j + 1]){
+						txIndex = ++i;
+						updateTer = 1;
+					}
+					break;
+				}
+				else if('w' == argv[i][j]){
+					if(j + 1 < len && 'y' == argv[i][j + 1]){
+						wyIndex = ++i;
+						updateWin = 1;
+					}
+					else if(j + 1 < len && 'x' == argv[i][j + 1]){
+						wxIndex = ++i;
+						updateWin = 1;
+					}
+					break;
+				}
+			}
+		}
+	}
+	if(updateTer){
+		xl = gameBoard->getXMin();
+		xh = gameBoard->getXMax();
+		yl = gameBoard->getYMin();
+		yh = gameBoard->getYMax();	
+		if(-1 != txIndex){
+			err = sscanf(argv[txIndex], "%d..%d", &xl, &xh);
+			if(2 != err || xl > xh){
+				cerr << "Values not correct after -tx will use terrian dimensions from file\n";
+				xl = gameBoard->getXMin();
+				xh = gameBoard->getXMax();
+			}
+		}			
+		if(-1 != tyIndex){
+			err = sscanf(argv[tyIndex], "%d..%d", &yl, &yh);				
+			if(2 != err || yl > yh){
+				cerr << "Values not correct after -ty will use terrian dimensions from file\n";
+				yl = gameBoard->getYMin();
+				yh = gameBoard->getYMax();
+			}
+		}
+		gameBoard->updateTerrain(xh, xl, yh, yl);
+	}
+	if(updateWin){
+
+		if(-1 != wxIndex){
+			err = sscanf(argv[wxIndex], "%d..%d", &xl, &xh);
+			if(2 != err || xl > xh){
+				cerr << "Values not correct after -wx will use window dimensions from file\n";
+			}else{
+				gameBoard->setWinWidth(xh, xl);
+			}
+		}
+		if(-1 != wyIndex){
+			err = sscanf(argv[wyIndex], "%d..%d", &yl, &yh);
+			if(2 != err || yl > yh){
+				cerr << "Values not correct after -wy will use window dimensions from file\n";
+			}else{
+				gameBoard->setWinHeight(yh, yl);
+			}
+		}
+	}
+	gameBoard->updateN(generations);
 }

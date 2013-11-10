@@ -267,3 +267,9 @@ void board::setWinHeight(int wymax, int wymin){
 		winYmin = ymin;
 	}
 }
+int board::getWinHeight(){
+	return computeY(ymin) - computeY(ymax) + 1;
+}
+int board::getWinWidth(){
+	return computeX(xmax) - computeX(xmin) + 1;
+}
