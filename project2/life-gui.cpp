@@ -2,10 +2,10 @@
 #include <QGridLayout>
 #include <QScrollArea>
 #include <QWidget>
-#include "../board.h"
-#include "../cell.h"
+#include "board.h"
+#include "cell.h"
 #include <string>
-#include "../filehandling.h"
+#include "filehandling.h"
 #include "Tile.h"
 
 using namespace std;

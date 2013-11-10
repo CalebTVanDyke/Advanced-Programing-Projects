@@ -1,9 +1,9 @@
 #ifndef GRID_H
 
-#include "../board.h"
+#include "board.h"
 #include "Tile.h"
 #include <QGridLayout>
-#include "../cell.h"
+#include "cell.h"
 
 class Grid : public QWidget
 {
