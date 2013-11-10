@@ -118,5 +118,21 @@ int main(int argc, char *argv[])
 	}
 }
 void displayHelp(){
-	cout << "help\n";
+	cout << "life-gui\n";
+	cout << "--------\n";
+	cout << "life-gui takes in a .life file or a file of a specific format, and can display the output in a graphical form.\n\n";
+
+	cout << "life-gui [-h] [-g n] [-s] [-tx low..high] [-ty low..high] [-wy low..high] [-wx low..high] [file]\n\n";
+	cout << "Options:\n";
+	cout << "-h              displays a help screen\n";
+	cout << "-g n            advances the life file to the n-th generation\n";
+	cout << "-s              the size that each tile should be in the window, default is 10\n";
+	cout << "-tx low..high   changes the terrain x values in the file to the values specified by low..high\n";
+	cout << "                if the window is not specified in the command line it will be set to the whole terrain\n";
+	cout << "-ty low..high   changes the terrain y values in the file to the values specified by low..high\n";
+	cout << "                if the window is not specified in the command line it will be set to the whole terrain\n";
+	cout << "-wx low..high   changes the window x values in the file to the values specified by low..high\n";
+	cout << "-wy low..high   changes the window y values in the file to the values specified by low..high\n";
+	cout << "file            this will be the file that is read\n";
+	cout << "                if ommited file will be read from standard input\n";
 }

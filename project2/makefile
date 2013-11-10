@@ -1,9 +1,9 @@
 all: life life-gui
 
 clean:
-	rm -rf life.o cell.o board.o life filehandling.o Grid.o Tile.o life-gui life-gui.o; make -f Makefile clean
+	rm -rf life.o cell.o board.o life filehandling.o Grid.o Tile.o life-gui life-gui.o; make -f Makefile clean; rm Makefile
 
-life-gui: life-gui.pro
+life-gui: board.o cell.o Tile.cpp life-gui.cpp
 	qmake-qt4 life-gui.pro; make -f Makefile
 
 life: life.o cell.o board.o filehandling.o

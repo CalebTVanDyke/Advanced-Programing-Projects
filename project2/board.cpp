@@ -195,18 +195,10 @@ void board::updateTerrain(int xhigh, int xlow, int yhigh, int ylow){
 	cells = newCells;
 	width = xhigh - xlow + 1;
 	height = yhigh - ylow + 1;
-	if(winXmin < xlow){
-		winXmin = xlow;
-	}
-	if(winXmax > xhigh){
-		winXmax = xhigh;
-	}
-	if(winYmin < ylow){
-		winYmin = ylow;
-	}
-	if(winYmax > yhigh){
-		winYmax = yhigh;
-	}
+	winXmin = xlow;
+	winXmax = xhigh;
+	winYmin = ylow;
+	winYmax = yhigh;
 	initializeCells();
 }
 void board::freeCells(){
