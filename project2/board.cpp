@@ -37,37 +37,37 @@ void board::updateOne(){
             int downJ = j + 1;
             int upJ = j - 1;
             if (i == height -1) {
-                rightI = 0;
+                rightI = -1;
             }else if(i == 0){
-                leftI = height - 1;
+                leftI = -1;
             }
             if(j == width - 1){
-                downJ = 0;
+                downJ = -1;
             }else if(j == 0){
-                upJ = width - 1;
+                upJ = -1;
             }
-            if(cells[leftI][j].isAlive()){
+            if(-1 != leftI && cells[leftI][j].isAlive()){
                 neighbors++;
             }
-            if(cells[rightI][j].isAlive()){
+            if(-1 != rightI && cells[rightI][j].isAlive()){
                 neighbors++;
             }
-            if(cells[i][upJ].isAlive()){
+            if(-1 != upJ && cells[i][upJ].isAlive() ){
                 neighbors++;
             }
-            if(cells[i][downJ].isAlive()){
+            if(-1 != downJ && cells[i][downJ].isAlive()){
                 neighbors++;
             }
-            if(cells[leftI][upJ].isAlive()){
+            if(-1 != leftI && -1 != upJ && cells[leftI][upJ].isAlive()){
                 neighbors++;
             }
-            if(cells[leftI][downJ].isAlive()) {
+            if(-1 != leftI && -1 != downJ && cells[leftI][downJ].isAlive()) {
                 neighbors++;
             }
-            if(cells[rightI][downJ].isAlive()){
+            if(-1 != rightI && -1 != downJ && cells[rightI][downJ].isAlive()){
                 neighbors++;
             }
-            if(cells[rightI][upJ].isAlive()){
+            if(-1 != rightI && -1 != upJ && cells[rightI][upJ].isAlive()){
                 neighbors++;
             }
             if(cells[i][j].isAlive()) {
@@ -206,18 +206,6 @@ void board::freeCells(){
 		delete [] cells[i];
 	}
 	delete [] cells;
-}
-void board::printArray(){
-	for(int i = 0; i < height; i++){
-		for(int j = 0; j < width; j++){
-			if(cells[i][j].isAlive()){
-				std::cout << aliveChar;
-			}else{
-				std::cout << deadChar;
-			}
-		}
-		std::cout << '\n';
-	}
 }
 void board::initializeCells(){
 	int x = xmin;

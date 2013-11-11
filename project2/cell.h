@@ -10,6 +10,9 @@ public:
 	~cell();
 	inline bool isAlive() { return alive; }
 	inline void setAlive(bool alive) { this->alive = alive;}
+	/**
+	*	Switchs the state of the cell to the opposite of what it was
+	**/
 	void switchState();
 	void setXY(int x, int y);
 	inline int getX() { return x; }

@@ -8,9 +8,8 @@ DEPENDPATH += .
 INCLUDEPATH += .
 
 # Input
-HEADERS += Grid.h Tile.h board.h cell.h filehandling.h
-SOURCES += Grid.cpp \
-           life-gui.cpp \
+HEADERS += Tile.h board.h cell.h filehandling.h
+SOURCES += life-gui.cpp \
            Tile.cpp \
            board.cpp \
            cell.cpp \

@@ -81,6 +81,10 @@ int main(int argc, char *argv[])
 
 	    int x = 0, y = 0;
 
+
+	    /**
+	    *	This fills the cells vector above with tile objects that are colored with respect to the board
+	    **/
 		for (int j = gameBoard.getWinXMin(); j <= gameBoard.getWinXMax(); ++j)
 		{
 			std::vector<Tile*> row;
