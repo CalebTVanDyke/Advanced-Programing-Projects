@@ -91,9 +91,13 @@ int main(int argc, char *argv[])
 			x = 0;
 			for (int i = gameBoard.getWinYMax(); i >= gameBoard.getWinYMin(); --i)
 			{
+				cell cur;
 				Tile *tile = new Tile();
-
-				cell cur = gameBoard.getCell(j, i);
+				if(i < gameBoard.getYMin() || i > gameBoard.getYMax() || j < gameBoard.getXMin() || j > gameBoard.getXMax()){
+					tile->redraw(qRgba(gameBoard.getDeadColor().red, gameBoard.getDeadColor().green, gameBoard.getDeadColor().blue, 255));
+				}else{
+					cur = gameBoard.getCell(j, i);
+				}
 				if(cur.isAlive()){
 					tile->redraw(qRgba(gameBoard.getAliveColor().red, gameBoard.getAliveColor().green, gameBoard.getAliveColor().blue, 255));
 				}else{

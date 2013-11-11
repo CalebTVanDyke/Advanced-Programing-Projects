@@ -119,9 +119,12 @@ std::string board::toString(){
 	std::string theBoard;
 	theBoard.resize((abs(winYmax - winYmin) + 1) * (abs(winXmax - winXmin) + 2 ));
 	int si = 0;
-	for(int i = computeY(winYmax); i <= computeY(winYmin); ++i){
-		for(int j = computeX(winXmin); j <= computeX(winXmax); ++j){
-			if(cells[i][j].isAlive()){
+	for(int i = winYmax; i >= winYmin; --i){
+		for(int j = winXmin; j <= winXmax; ++j){
+			if(i < ymin || i > ymax || j < xmin || j > xmax){
+				theBoard[si] = deadChar;
+			}
+			else if(cells[computeY(i)][computeX(j)].isAlive()){
 				theBoard[si] = aliveChar; 
 			}else{
 				theBoard[si] = deadChar;
@@ -220,36 +223,36 @@ void board::initializeCells(){
 	}
 }
 void board::setWinWidth(int wxmax, int wxmin){
-	if(wxmax <= xmax){
+	//if(wxmax <= xmax){
 		winXmax = wxmax;
-	}else{
+/*	}else{
 		std::cerr << "New window X max value was out of range of the terrain, max terrain X value will be used\n";
 		winXmax = xmax;
 	}
-	if(wxmin >= xmin){
+	if(wxmin >= xmin){*/
 		winXmin = wxmin;
-	}else{
+/*	}else{
 		std::cerr << "New window Y min value was out of range of the terrain, min terrain X value will be used\n";
 		winXmin = xmin;
-	}
+	}*/
 }
 void board::setWinHeight(int wymax, int wymin){
-	if(wymax <= ymax){
+	//if(wymax <= ymax){
 		winYmax = wymax;
-	}else{
+	/*}else{
 		std::cerr << "New window Y max value was out of range of the terrain, max terrain Y value will be used\n";
 		winYmax = ymax;
 	}
-	if(wymin >= ymin){
+	if(wymin >= ymin){*/
 		winYmin = wymin;
-	}else{
+	/*}else{
 		std::cerr << "New window Y min value was out of range of the terrain, min terrain Y value will be used\n";
 		winYmin = ymin;
-	}
+	}*/
 }
 int board::getWinHeight(){
-	return computeY(ymin) - computeY(ymax) + 1;
+	return computeY(winYmin) - computeY(winYmax) + 1;
 }
 int board::getWinWidth(){
-	return computeX(xmax) - computeX(xmin) + 1;
+	return computeX(winXmax) - computeX(winXmin) + 1;
 }
