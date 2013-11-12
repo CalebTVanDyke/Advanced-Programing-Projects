@@ -1,5 +1,10 @@
 all: life life-gui
 
+tarball: cvandyke.tar.gz
+
+cvandyke.tar.gz: makefile Tile.cpp Tile.h board.cpp board.h cell.cpp cell.h filehandling.cpp filehandling.h life-gui.cpp life-gui.pro life.cpp
+	tar -czf cvandyke.targz sample.life makefile Tile.cpp Tile.h board.cpp board.h cell.cpp cell.h filehandling.cpp filehandling.h life-gui.cpp life-gui.pro life.cpp
+
 clean:
 	rm -rf life.o cell.o board.o life filehandling.o Grid.o Tile.o life-gui life-gui.o; make -f Makefile clean; rm Makefile
 
