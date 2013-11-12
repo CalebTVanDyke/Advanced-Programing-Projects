@@ -37,7 +37,10 @@ class board
 
 public:
 	board(std::string name, int xmax, int xmin, int ymax, int ymin, char aliveChar, char deadColor);
+	board(const board& b);
 	~board();
+
+	board operator=(board b);
 	/**
 	* Updates the cells one generation
 	**/
@@ -86,6 +89,11 @@ public:
 	inline int getWinYMin(){ return winYmin; }
 	inline int getWinXMax(){ return winXmax; }
 	inline int getWinYMax(){ return winYmax; }
+	inline int getHeight(){ return height; }
+	inline int getWidth(){ return width; }
+	inline char getAliveChar(){ return aliveChar; }
+	inline char getDeadChar(){ return deadChar; }
+	
 	/**
 	*	Returns a visual representation of the board in string format
 	**/

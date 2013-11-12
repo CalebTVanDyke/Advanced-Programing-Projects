@@ -23,6 +23,20 @@ board::board(std::string name, int xmax, int xmin, int ymax, int ymin, char aliv
 	}
 	initializeCells();
 }
+board::board(const board& b){
+	freeCells();
+	height = b.getHeight();
+	width = b.getWidth();
+	name = b.getName();
+	aliveChar = b.getAliveChar();
+	deadChar = b.getDeadChar();
+	xmin = b.getXMin();
+	ymin = b.ymin;
+	ymax = b.ymax;
+}
+board::operator=(board b){
+
+}
 board::~board(){
 	freeCells();
 }
