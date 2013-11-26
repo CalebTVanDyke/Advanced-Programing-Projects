@@ -49,14 +49,15 @@ int main(int argc, char *argv[])
 		}else{
 			fileInfo = getStringFromStdIn();
 		}
-		board gameBoard = stringToBoard(fileInfo);
-		updateBoardWithCommands(&gameBoard, argc, argv);
+		board* gameBoard = stringToBoard(fileInfo);
+		updateBoardWithCommands(gameBoard, argc, argv);
 
-		gameBoard.updateN(generations);
+		gameBoard->updateN(generations);
+
 		if(printVisual)
-			cout << gameBoard.toString();
+			cout << gameBoard->toString();
 		else
-			cout << gameBoard.toFile();
+			cout << gameBoard->toFile();
 
 	}catch(int e){
 		return -1;

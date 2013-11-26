@@ -6,13 +6,13 @@ cvandyke.tar.gz: makefile Tile.cpp Tile.h board.cpp board.h cell.cpp cell.h file
 	tar -czf cvandyke.targz sample.life makefile Tile.cpp Tile.h board.cpp board.h cell.cpp cell.h filehandling.cpp filehandling.h life-gui.cpp life-gui.pro life.cpp
 
 clean:
-	rm -rf life.o cell.o board.o life filehandling.o Grid.o Tile.o life-gui life-gui.o; make -f Makefile clean; rm Makefile
+	rm -rf wire_board.o wire_cell.o life_board.o life.o cell.o board.o life filehandling.o Grid.o Tile.o life-gui life-gui.o; make -f Makefile clean; rm Makefile
 
-life-gui: board.o cell.o Tile.cpp life-gui.cpp
+life-gui: board.o cell.o Tile.cpp life-gui.cpp filehandling.o life_board.o wire_board.o
 	qmake-qt4 life-gui.pro; make -f Makefile
 
-life: life.o cell.o board.o filehandling.o
-	g++ -g -o life life.o cell.o board.o filehandling.o -lboost_regex-mt
+life: life.o cell.o board.o filehandling.o life_board.o wire_board.o wire_cell.o
+	g++ -g -o life life.o cell.o board.o filehandling.o life_board.o wire_board.o wire_cell.o -lboost_regex-mt
 
 life.o: life.cpp board.h cell.h
 	g++ -c -g life.cpp
@@ -25,3 +25,12 @@ board.o: board.cpp board.h
 
 filehandling.o: filehandling.cpp filehandling.h
 	g++ -c -g filehandling.cpp
+
+life_board.o: life_board.cpp life_board.h board.o
+	g++ -c -g life_board.cpp
+
+wire_board.o: wire_board.cpp wire_board.h board.o wire_cell.o
+	g++ -c -g wire_board.cpp
+
+wire_cell.o: wire_cell.cpp
+	g++ -c -g wire_cell.cpp

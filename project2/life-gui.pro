@@ -8,12 +8,14 @@ DEPENDPATH += .
 INCLUDEPATH += .
 
 # Input
-HEADERS += Tile.h board.h cell.h filehandling.h
+HEADERS += Tile.h board.h cell.h filehandling.h life_board.h
 SOURCES += life-gui.cpp \
            Tile.cpp \
            board.cpp \
            cell.cpp \
-           filehandling.cpp
+           filehandling.cpp \
+           life_board.cpp
+
 
 INCLUDEPATH += /usr/include/boost/
 LIBS += "-L/usr/include/boost/" -lboost_regex-mt

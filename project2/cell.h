@@ -7,7 +7,9 @@ class cell
 	int y;
 public:
 	cell();
+	cell(const cell& c);
 	~cell();
+	void operator=(cell c);
 	inline bool isAlive() { return alive; }
 	inline void setAlive(bool alive) { this->alive = alive;}
 	/**

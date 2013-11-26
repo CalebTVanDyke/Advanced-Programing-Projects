@@ -3,7 +3,7 @@
 #
 Life =
 {
-Name = "Figure 3 example";
+Name = "Poop 3 example";
 Terrain = {
 Xrange = -6..6;
 Yrange
@@ -16,7 +16,7 @@ Alive = 64; # ASCII code for @
 Dead = 126; # ASCII code for ~
 };
 Colors = {
-Alive = (170, 0, 255); # White
+Alive = (0, 0, 255); # White
 Dead = (89, 48, 1); # Dark grey
 };
 Initial = {

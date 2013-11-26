@@ -2,7 +2,7 @@
 #include <QGridLayout>
 #include <QScrollArea>
 #include <QWidget>
-#include "board.h"
+#include "life_board.h"
 #include "cell.h"
 #include <string>
 #include "filehandling.h"
@@ -59,12 +59,12 @@ int main(int argc, char *argv[])
 		else
 			fileInfo = getStringFromStdIn();
 	
-		board gameBoard = stringToBoard(fileInfo);
+		board* gameBoard = stringToBoard(fileInfo);
 
-		updateBoardWithCommands(&gameBoard, argc, argv);
+		updateBoardWithCommands(gameBoard, argc, argv);
 
 		QScrollArea window;
-		window.setWindowTitle(gameBoard.getName().c_str());
+		window.setWindowTitle(gameBoard->getName().c_str());
 		window.setContentsMargins(QMargins(0, 0, 0, 0));
 		window.setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 		
@@ -85,23 +85,23 @@ int main(int argc, char *argv[])
 	    /**
 	    *	This fills the cells vector above with tile objects that are colored with respect to the board
 	    **/
-		for (int j = gameBoard.getWinXMin(); j <= gameBoard.getWinXMax(); ++j)
+		for (int j = gameBoard->getWinXMin(); j <= gameBoard->getWinXMax(); ++j)
 		{
 			std::vector<Tile*> row;
 			x = 0;
-			for (int i = gameBoard.getWinYMax(); i >= gameBoard.getWinYMin(); --i)
+			for (int i = gameBoard->getWinYMax(); i >= gameBoard->getWinYMin(); --i)
 			{
 				cell cur;
 				Tile *tile = new Tile();
-				if(i < gameBoard.getYMin() || i > gameBoard.getYMax() || j < gameBoard.getXMin() || j > gameBoard.getXMax()){
-					tile->redraw(qRgba(gameBoard.getDeadColor().red, gameBoard.getDeadColor().green, gameBoard.getDeadColor().blue, 255));
+				if(i < gameBoard->getYMin() || i > gameBoard->getYMax() || j < gameBoard->getXMin() || j > gameBoard->getXMax()){
+					tile->redraw(qRgba(((life_board*)gameBoard)->getDeadColor().red, ((life_board*)gameBoard)->getDeadColor().green, ((life_board*)gameBoard)->getDeadColor().blue, 255));
 				}else{
-					cur = gameBoard.getCell(j, i);
+					cur = ((life_board*)gameBoard)->getCell(j, i);
 				}
 				if(cur.isAlive()){
-					tile->redraw(qRgba(gameBoard.getAliveColor().red, gameBoard.getAliveColor().green, gameBoard.getAliveColor().blue, 255));
+					tile->redraw(qRgba(((life_board*)gameBoard)->getAliveColor().red, ((life_board*)gameBoard)->getAliveColor().green, ((life_board*)gameBoard)->getAliveColor().blue, 255));
 				}else{
-					tile->redraw(qRgba(gameBoard.getDeadColor().red, gameBoard.getDeadColor().green, gameBoard.getDeadColor().blue, 255));
+					tile->redraw(qRgba(((life_board*)gameBoard)->getDeadColor().red, ((life_board*)gameBoard)->getDeadColor().green, ((life_board*)gameBoard)->getDeadColor().blue, 255));
 				}
 				tile->setCellSize(cellSize);
 

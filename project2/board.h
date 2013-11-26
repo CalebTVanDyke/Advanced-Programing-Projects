@@ -9,7 +9,7 @@
 
 class board
 {
-	cell** cells;
+protected:
 	int xmin;
 	int winXmin;
 	int ymin;
@@ -18,12 +18,9 @@ class board
 	int winXmax;
 	int ymax;
 	int winYmax;
-	char aliveChar;
-	char deadChar;
 	int width;
 	int height;
 	std::string name;
-
 	typedef struct
 	{
 		int red;
@@ -32,49 +29,17 @@ class board
 		
 	}color;
 
-	color aliveColor;
-	color deadColor;
-
 public:
-	board(std::string name, int xmax, int xmin, int ymax, int ymin, char aliveChar, char deadColor);
-	board(const board& b);
-	~board();
+	board(std::string name, int xmax, int xmin, int ymax, int ymin);
+	virtual ~board();
 
-	board operator=(board b);
-	/**
-	* Updates the cells one generation
-	**/
-	void updateOne();
+	virtual void updateOne() = 0;
 	/**
 	* Updates the cells N generations
 	**/
-	void updateN(int n);
-	/**
-	* Sets the cell located at x, y to alive (x, y are in cartesian coordinates)
-	**/
-	inline void setAlive(int x, int y) { cells[computeY(y)][computeX(x)].setAlive(true); }
-	/**
-	* Returns the cell at x, y (x, y are in cartesian coordinates)
-	**/
-	inline cell getCell(int x, int y) { return cells[computeY(y)][computeX(x)]; }
+	virtual void updateN(int n);
 	inline std::string getName() { return name; }
 	inline void setName(std::string name) {this->name = name;}
-	/**
-	* Sets the AliveColor to the r, g, b combination
-	**/
-	void setAliveColor(int r, int g, int b);
-	/**
-	* Sets the DeadColor to the r, g, b combination
-	**/
-	void setDeadColor(int r, int g, int b);
-	/**
-	*	Returns a color struct representing the alive color with the following elements: red, green, blue
-	**/
-	inline color getAliveColor() { return aliveColor; }
-	/**
-	*	Returns a color struct representing the dead color with the following elements: red, green, blue
-	**/
-	inline color getDeadColor() { return deadColor; }
 	void setWinHeight(int ymax, int ymin);
 	void setWinWidth(int xmax, int xmin);
 	inline int getXMin(){ return xmin; }
@@ -91,17 +56,15 @@ public:
 	inline int getWinYMax(){ return winYmax; }
 	inline int getHeight(){ return height; }
 	inline int getWidth(){ return width; }
-	inline char getAliveChar(){ return aliveChar; }
-	inline char getDeadChar(){ return deadChar; }
 	
 	/**
 	*	Returns a visual representation of the board in string format
 	**/
-	std::string toString();
+	virtual std::string toString() = 0;
 	/**
 	*	Returns a string containing the board converted to a life file
 	**/
-	std::string toFile();
+	virtual std::string toFile() = 0;
 	/**
 	*	Takes in a x in cartesian coordinates and converts it into an index into the array
 	**/
@@ -113,20 +76,14 @@ public:
 	/**
 	*	Updates the terrain to match with the new coordinate system
 	**/
-	void updateTerrain(int xhigh, int xlow, int yhigh, int ylow);
+	virtual void updateTerrain(int xhigh, int xlow, int yhigh, int ylow) = 0;
 	int getWinHeight();
 	int getWinWidth();
 private:
 	/**
 	*	Initializes the cells of the board to contain the x, y coordinate they are pointing too
 	**/
-	void initializeCells();
-
-private:
-	/**
-	*	Frees all cells of the board called by the destructor and whenever the terrain is updated to new dimensions
-	**/
-	void freeCells();
+	virtual void initializeCells() = 0;
 };
 
 #endif
