@@ -104,26 +104,91 @@ board* stringToBoard(string fileInfo){
 }
 void initWire(string fileInfo, wire_board* gameBoard){
 
+	boost::smatch container;
+	boost::regex reInitial("Initial[^}]+\\}");
+	boost::regex reHead("Head[^;]+;");
+	boost::regex reTail("Tail[^;]+;");
+	boost::regex reWire("Wire[^;]+;");
+	boost::regex reParens("\\([^\\)]+\\)");
+
+	boost::regex_search(fileInfo, container, reInitial);
+
+	if(container.size() != 1){
+		cerr << "Error with Initial portion\n";
+		throw -1;
+	}
+	string initial = container.str();
+	boost::regex_search(initial, container, reHead);
+	string head = container.str();
+
+	boost::regex_iterator<string::iterator> headit(head.begin(), head.end(), reParens);
+	boost::regex_iterator<string::iterator> end;
+
+	while(headit != end){
+		int xc;
+		int yc;
+		if((sscanf(headit->str().c_str(), "(%d, %d)", &xc, &yc)) != 2){
+			cerr << "Error reading X, Y coordinate" << '\n';
+			headit++;
+			continue;
+		}
+		if(xc < gameBoard->getXMin() || xc > gameBoard->getXMax() || yc < gameBoard->getYMin() || yc > gameBoard->getYMax()){
+			cerr << "Coordinate in " << headit->str() << " was not in range of the terrain." << '\n';
+			headit++;
+			continue;
+		}
+		gameBoard->setCellState(xc, yc, wire_cell::HEAD);
+		headit++;
+	}
+	boost::regex_search(initial, container, reTail);
+	string tail = container.str();
+
+	boost::regex_iterator<string::iterator> tailit(tail.begin(), tail.end(), reParens);
+
+	while(tailit != end){
+		int xc;
+		int yc;
+		if((sscanf(tailit->str().c_str(), "(%d, %d)", &xc, &yc)) != 2){
+			cerr << "Error reading X, Y coordinate" << '\n';
+			tailit++;
+			continue;
+		}
+		if(xc < gameBoard->getXMin() || xc > gameBoard->getXMax() || yc < gameBoard->getYMin() || yc > gameBoard->getYMax()){
+			cerr << "Coordinate in " << tailit->str() << " was not in range of the terrain." << '\n';
+			tailit++;
+			continue;
+		}
+		gameBoard->setCellState(xc, yc, wire_cell::TAIL);
+		tailit++;
+	}
+	boost::regex_search(initial, container, reWire);
+	string wire = container.str();
+
+	boost::regex_iterator<string::iterator> wireit(wire.begin(), wire.end(), reParens);
+
+	while(wireit != end){
+		int xc;
+		int yc;
+		if((sscanf(wireit->str().c_str(), "(%d, %d)", &xc, &yc)) != 2){
+			cerr << "Error reading X, Y coordinate" << '\n';
+			wireit++;
+			continue;
+		}
+		if(xc < gameBoard->getXMin() || xc > gameBoard->getXMax() || yc < gameBoard->getYMin() || yc > gameBoard->getYMax()){
+			cerr << "Coordinate in " << wireit->str() << " was not in range of the terrain." << '\n';
+			wireit++;
+			continue;
+		}
+		gameBoard->setCellState(xc, yc, wire_cell::WIRE);
+		wireit++;
+	}
+
 }
 void getWireColors(string fileInfo, wire_board* gameBoard){
-	boost::smatch headMatch;
-	boost::smatch emptyMatch;
-	boost::smatch tailMatch;
-	boost::smatch wireMatch;
+
 	boost::smatch container;
-	boost::regex reHead("Head[^;]+;");
-	boost::regex reEmpty("Empty[^;]+;");
-	boost::regex reWire("Wire[^;]+;");
-	boost::regex reTail("Tail[^;]+;");
-	boost::regex reParens("\\([^\\)]+\\)");
 	boost::regex reColors("Colors[^}]+\\}");
 
-	string headColor;
-	string emptyColor;
-	string tailColor;
-	string wireColor;
-
-	//Head color
 	int r, g, b;
 
 	boost::regex_search(fileInfo, container, reColors);
@@ -136,56 +201,75 @@ void getWireColors(string fileInfo, wire_board* gameBoard){
 		gameBoard->setWireColor(64, 64, 255);
 		return;
 	}
-	std::cout << container[0].str() << '\n';
 
-	boost::regex_search(container[0].str(), headMatch, reHead);
-	if(headMatch.size() == 1){
-		boost::regex_search(headMatch[0].str(), headMatch, reParens);
-		if(headMatch.size() != 1){ 
-			cerr << "Error attempting to read Head color value from Colors portion, default will be used" << '\n';
-			gameBoard->setHeadColor(255, 64, 64);
-		}
-		headColor = headMatch.str();
-		int r, b ,g;
-		if((sscanf(headColor.c_str(), "(%d,%d,%d)", &r, &g, &b)) != 3){
-			cerr << "Head in Colors portion was not valid, default will be used" << '\n';
+	string colors = container[0].str();
+	//HEAD COLOR
+	const char * headLoc = strstr(colors.c_str(), "Head=");
+	if(headLoc){
+		if((sscanf(headLoc, "Head=(%d, %d, %d)", &r, &g, &b)) != 3){
+			cerr << "Error reading head values default will be used.\n";
 			gameBoard->setHeadColor(255, 64, 64);
 		}
 		else if(r < 0 || r > 255 || b < 0 || b > 255 || g < 0 || g > 255){
 			cerr << "RBG value for Head in Colors portion was not valid, default will be used" << '\n';
 			gameBoard->setHeadColor(255, 64, 64);
 		}else{
-			std::cout << headColor << '\n';
 			gameBoard->setHeadColor(r, g, b);
-		}	
+		}
 	}else{
-		cerr << "Head portion not found, default color will be used\n";
+		cerr << "Head in Colors not found default will be used" << '\n';
 		gameBoard->setHeadColor(255, 64, 64);
 	}
-
-	//Empty color
-	boost::regex_search(container[0].str(), emptyMatch, reEmpty);
-	if(emptyMatch.size() == 1){
-		boost::regex_search(emptyMatch[0].str(), emptyMatch, reParens);
-		if(emptyMatch.size() != 1){
-			cerr << "Error attempting to read Empty color value from Colors portion, default will be used" << '\n';
+	//EMPTY COLOR
+	const char * emptyLoc = strstr(colors.c_str(), "Empty=");
+	if(emptyLoc){
+		if((sscanf(emptyLoc, "Empty=(%d, %d, %d)", &r, &g, &b)) != 3){
+			cerr << "Error reading Empty values default will be used.\n";
 			gameBoard->setEmptyColor(64, 64, 64);
 		}
-		emptyColor = emptyMatch.str();
-		if((sscanf(emptyColor.c_str(), "(%d,%d,%d)", &r, &g, &b)) != 3){
-			cerr << "RBG value for Empty in Colors portion was not valid, default will be used." << '\n';
-			gameBoard->setEmptyColor(64 , 64, 64);
-		}
 		else if(r < 0 || r > 255 || b < 0 || b > 255 || g < 0 || g > 255){
-			cerr << "RBG value for Empty in Colors portion was not valid" << '\n';
-			gameBoard->setEmptyColor(64 , 64, 64);
+			cerr << "RBG value for Empty in Colors portion was not valid, default will be used" << '\n';
+			gameBoard->setEmptyColor(64, 64, 64);
 		}else{
-			std::cout << emptyColor << '\n';
 			gameBoard->setEmptyColor(r, g, b);
 		}
 	}else{
-		cerr << "Empty color not found default will be used\n";
-		gameBoard->setEmptyColor(0 , 0, 0);
+		cerr << "Empty in Colors not found default will be used" << '\n';
+		gameBoard->setEmptyColor(64, 64, 64);
+	}
+	//TAIL COLOR
+	const char * tailLoc = strstr(colors.c_str(), "Tail=");
+	if(tailLoc){
+		if((sscanf(tailLoc, "Tail=(%d, %d, %d)", &r, &g, &b)) != 3){
+			cerr << "Error reading Tail values default will be used.\n";
+			gameBoard->setTailColor(255, 64, 255);
+		}
+		else if(r < 0 || r > 255 || b < 0 || b > 255 || g < 0 || g > 255){
+			cerr << "RBG value for Tail in Colors portion was not valid, default will be used" << '\n';
+			gameBoard->setTailColor(255, 64, 255);
+		}else{
+			gameBoard->setTailColor(r, g, b);
+		}
+	}else{
+		cerr << "Tail in Colors not found default will be used" << '\n';
+		gameBoard->setTailColor(255, 64, 255);
+	}
+	//WIRE COLOR
+	const char * wireLoc = strstr(colors.c_str(), "Wire=");
+	if(wireLoc){
+		if((sscanf(wireLoc, "Wire=(%d, %d, %d)", &r, &g, &b)) != 3){
+			cerr << "Error reading Wire values default will be used.\n";
+			gameBoard->setWireColor(64, 64, 255);
+		}
+		else if(r < 0 || r > 255 || b < 0 || b > 255 || g < 0 || g > 255){
+			cerr << "RBG value for Wire in Colors portion was not valid, default will be used" << '\n';
+			gameBoard->setWireColor(64, 64, 255);
+		}else{
+			gameBoard->setWireColor(r, g, b);
+		}
+	}else{
+		cerr << "Wire in Colors not found default will be used" << '\n';
+		gameBoard->setWireColor(64, 64, 255);
 	}
 }
 

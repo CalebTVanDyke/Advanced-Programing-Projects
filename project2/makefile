@@ -8,7 +8,7 @@ cvandyke.tar.gz: makefile Tile.cpp Tile.h board.cpp board.h cell.cpp cell.h file
 clean:
 	rm -rf wire_board.o wire_cell.o life_board.o life.o cell.o board.o life filehandling.o Grid.o Tile.o life-gui life-gui.o; make -f Makefile clean; rm Makefile
 
-life-gui: board.o cell.o Tile.cpp life-gui.cpp filehandling.o life_board.o wire_board.o
+life-gui: board.o cell.o Tile.cpp life-gui.cpp filehandling.o life_board.o wire_board.o wire_cell.o
 	qmake-qt4 life-gui.pro; make -f Makefile
 
 life: life.o cell.o board.o filehandling.o life_board.o wire_board.o wire_cell.o
@@ -32,5 +32,5 @@ life_board.o: life_board.cpp life_board.h board.o
 wire_board.o: wire_board.cpp wire_board.h board.o wire_cell.o
 	g++ -c -g wire_board.cpp
 
-wire_cell.o: wire_cell.cpp
+wire_cell.o: wire_cell.cpp wire_cell.h
 	g++ -c -g wire_cell.cpp

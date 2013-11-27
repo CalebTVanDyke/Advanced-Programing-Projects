@@ -1,6 +1,8 @@
 #ifndef wire_cell_H
 #define wire_cell_H 1
 
+#include <iostream>
+
 class wire_cell
 {
 public:
@@ -19,7 +21,7 @@ public:
 	wire_cell(const wire_cell& c);
 	~wire_cell();
 	void operator=(wire_cell c);
-	inline bool getState() { return state; }
+	inline CellState getState() { return state; }
 	inline void setState(CellState state) { this->state = state; }
 	void setXY(int x, int y);
 	inline int getX() { return x; }

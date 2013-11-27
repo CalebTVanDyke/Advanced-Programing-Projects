@@ -29,12 +29,26 @@ std::string wire_board::toString(){
 			if(i < ymin || i > ymax || j < xmin || j > xmax){
 				theBoard[si] = emptyChar;
 			}
-			else if(cells[computeY(i)][computeX(j)].getState() == wire_cell::HEAD){
+			int x = computeX(j);
+			int y = computeY(i);
+  			if(cells[y][x].getState() == wire_cell::HEAD){
 				theBoard[si] = headChar; 
+			}
+			else if(cells[y][x].getState() == wire_cell::TAIL){
+				theBoard[si] = tailChar; 
+			}
+			else if(cells[y][x].getState() == wire_cell::WIRE){
+				theBoard[si] = wireChar; 
 			}else{
 				theBoard[si] = emptyChar;
 			}
 			++si;
+			if(y >= height){
+				std::cout << "y out of bounds " << y << '\n';
+			}
+			if(x >= width){
+				std::cout << "x out of bounds " << x << '\n';
+			}
 		}
 		theBoard[si] = '\n';
 		++si;
