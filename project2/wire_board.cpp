@@ -18,7 +18,54 @@ wire_board::~wire_board(){
 	freeCells();
 }
 void wire_board::updateOne(){
-
+	wire_cell ** newCells;
+	newCells = new wire_cell*[height];
+	for(int i = 0; i < height; ++i){
+		newCells[i] = new wire_cell[width];
+	}
+	for(int i = 0; i < height; ++i){
+		for (int j = 0; j < width; ++j){
+			if(cells[i][j].getState() == wire_cell::EMPTY){
+				newCells[i][j].setState(wire_cell::EMPTY);
+			}
+			else if(cells[i][j].getState() == wire_cell::HEAD){
+				newCells[i][j].setState(wire_cell::TAIL);
+			}
+			else if(cells[i][j].getState() == wire_cell::TAIL){
+				newCells[i][j].setState(wire_cell::WIRE);
+			}
+			else if(cells[i][j].getState() == wire_cell::WIRE){
+				if(i + 1 < height && cells[i + 1][j].getState() == wire_cell::HEAD){
+					newCells[i][j].setState(wire_cell::HEAD);
+				}
+				else if(i - 1 >= 0 && cells[i - 1][j].getState() == wire_cell::HEAD){
+					newCells[i][j].setState(wire_cell::HEAD);
+				}
+				else if(j - 1 >= 0 && cells[i][j - 1].getState() == wire_cell::HEAD){
+					newCells[i][j].setState(wire_cell::HEAD);
+				}
+				else if(j + 1 < width && cells[i][j + 1].getState() == wire_cell::HEAD){
+					newCells[i][j].setState(wire_cell::HEAD);
+				}
+				else if(i - 1 >= 0 && j - 1 >= 0 && cells[i - 1][j - 1].getState() == wire_cell::HEAD){
+					newCells[i][j].setState(wire_cell::HEAD);
+				}
+				else if(i + 1 < height && j - 1 >= 0 && cells[i + 1][j - 1].getState() == wire_cell::HEAD){
+					newCells[i][j].setState(wire_cell::HEAD);
+				}
+				else if(i - 1 >= 0 && j + 1 < width && cells[i - 1][j + 1].getState() == wire_cell::HEAD){
+					newCells[i][j].setState(wire_cell::HEAD);
+				}
+				else if(i + 1 < height && j + 1 < width && cells[i + 1][j + 1].getState() == wire_cell::HEAD){
+					newCells[i][j].setState(wire_cell::HEAD);
+				}else{
+					newCells[i][j].setState(wire_cell::WIRE);
+				}
+			}
+		}
+	}
+	freeCells();
+	cells = newCells;
 }
 std::string wire_board::toString(){
 	std::string theBoard;
