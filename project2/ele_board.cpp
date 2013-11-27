@@ -1,8 +1,11 @@
 #include "ele_board.h"
+#include <math.h>
 
-ele_board::ele_board(std::string name, int xmax, int xmin, int ymax, int ymin, char one, char zero)
+ele_board::ele_board(std::string name, int xmax, int xmin, int ymax, int ymin, char one, char zero, int rule)
 : life_board(name, xmax, xmin, ymax, ymin, one , zero)
-{}
+{
+	this->rule = rule;
+}
 
 ele_board::~ele_board(){
 
@@ -36,12 +39,12 @@ void ele_board::updateOne(){
 			}else{
 				zero = 0;
 			}
-			if( (two && !one && !zero) || (!two && one && zero) || (!two && one && !zero) || (!two && !one && zero) ){
+			int num = two* pow(2, 2) + one * pow(2, 1) + zero * pow(2, 0);
+			if( (rule >> num) & 0x1 ){
 				newCells[i][j].setAlive(true);
 			}else{
 				newCells[i][j].setAlive(false);
 			}
-			std::cout << '(' << j << ',' << i << ')' << "=" << two << one << zero << '\n';
 		}
 	}
 	freeCells();

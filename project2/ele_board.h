@@ -12,9 +12,9 @@
 **/
 class ele_board : public life_board
 {
-
+	int rule;
 public:
-	ele_board(std::string name, int xmax, int xmin, int ymax, int ymin, char one, char zero);
+	ele_board(std::string name, int xmax, int xmin, int ymax, int ymin, char one, char zero, int rule);
 
 	virtual ~ele_board();
 	/**

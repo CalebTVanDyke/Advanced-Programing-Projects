@@ -43,6 +43,7 @@ void getWireColors(string fileInfo, wire_board* gameBoard);
 void initWire(string fileInfo, wire_board* gameBoard);
 void getEleColors(string fileInfo, ele_board* gameBoard);
 void initEle(string fileInfo, ele_board* gameBoard);
+int getRuleEle(string fileInfo);
 
 board* stringToBoard(string fileInfo){
 
@@ -98,7 +99,8 @@ board* stringToBoard(string fileInfo){
 		initWire(fileInfo, (wire_board*) gameBoard);
 	}
 	else if(isEle){
-		gameBoard = new ele_board(name, ter->xhigh, ter->xlow, ter->yhigh, ter->ylow, l_chars->alive, l_chars->dead);
+		int rule = getRuleEle(fileInfo);
+		gameBoard = new ele_board(name, ter->xhigh, ter->xlow, ter->yhigh, ter->ylow, l_chars->alive, l_chars->dead, rule);
 		delete l_chars;
 		getEleColors(fileInfo, (ele_board*) gameBoard);
 		initEle(fileInfo, (ele_board*) gameBoard);
@@ -109,6 +111,26 @@ board* stringToBoard(string fileInfo){
 	delete ter;
 
 	return gameBoard;
+}
+int getRuleEle(string fileInfo){
+	int rule;
+
+	boost::smatch container;
+	boost::regex reRule("Rule=[0-9]+");
+	boost::regex_search(fileInfo, container, reRule);
+	if(container.size() < 1){
+		cerr << "Rule not found default of rule 30 will be used." << '\n';
+		return 30;
+	}
+	if((sscanf(container.str().c_str(), "Rule=%d", &rule)) != 1){
+		cerr << "Error reading rule number. Rule 30 will be used." << '\n';
+		return 30;
+	}
+	if(rule > 255){
+		cerr << "Rule greater than 255. Rule 255 will be used." << '\n';
+		return 255;
+	}
+	return rule;
 }
 void getEleColors(string fileInfo, ele_board* gameBoard){
 	boost::smatch container;
