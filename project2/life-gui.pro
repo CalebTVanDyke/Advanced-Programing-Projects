@@ -3,18 +3,20 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = life-gui
+TARGET = life_gui
 DEPENDPATH += .
 INCLUDEPATH += .
 
 # Input
-HEADERS += Tile.h board.h cell.h filehandling.h life_board.h
+HEADERS += Tile.h board.h cell.h filehandling.h life_board.h wire_board.h wire_cell.h
 SOURCES += life-gui.cpp \
            Tile.cpp \
            board.cpp \
            cell.cpp \
            filehandling.cpp \
-           life_board.cpp
+           life_board.cpp \
+           wire_board.cpp \
+           wire_cell.cpp 
 
 
 INCLUDEPATH += /usr/include/boost/

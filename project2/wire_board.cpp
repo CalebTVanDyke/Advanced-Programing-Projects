@@ -1,3 +1,4 @@
+#include <sstream>
 #include "wire_board.h"
 
 wire_board::wire_board(std::string name, int xmax, int xmin, int ymax, int ymin, char empty, char head, char tail, char wire)
@@ -66,6 +67,7 @@ void wire_board::updateOne(){
 	}
 	freeCells();
 	cells = newCells;
+	initializeCells();
 }
 std::string wire_board::toString(){
 	std::string theBoard;
@@ -104,7 +106,54 @@ std::string wire_board::toString(){
 	return theBoard;
 }
 std::string wire_board::toFile(){
-	return "";
+	std::stringstream sstm;
+	sstm << "WireWorld={";
+	if("" != name){
+		sstm << "Name=\"" << name << "\";";
+	}
+	sstm << "Terrain={Xrange=" << xmin << ".." << xmax << ";";
+	sstm << "Yrange=" << ymin << ".." << ymax << ";};";
+	sstm << "Window={Xrange=" << winXmin << ".." << winXmax << ";";
+	sstm << "Yrange={" << winYmin << ".." << winYmax << ";};";
+	sstm << "Chars={Empty=" << (int) emptyChar << ";Head=" << (int) headChar << ";Tail=" << (int) tailChar << ";Wire=" << (int) wireChar << ";};";
+	sstm << "Colors={Empty=(" << emptyColor.red << "," << emptyColor.green << "," << emptyColor.blue << ");";
+	sstm << "Head=(" << headColor.red << "," << headColor.green << "," << headColor.blue << ");";
+	sstm << "Tail=(" << tailColor.red << "," << tailColor.green << "," << tailColor.blue << ");";
+	sstm << "Wire=(" << wireColor.red << "," << wireColor.green << "," << wireColor.blue << ");};";
+	sstm << "Initial={";
+	std::stringstream wireStream;
+	wireStream << "Wire=";
+	std::stringstream tailStream;
+	tailStream << "Tail=";
+	std::stringstream headStream;
+	headStream << "Head=";
+
+	const char * wireSep = "";
+	const char * tailSep = "";
+	const char * headSep = "";
+
+	for(int i = 0; i < height; ++i){
+		for(int j = 0; j < width; ++j){
+			if(cells[i][j].getState() == wire_cell::HEAD){
+				headStream << headSep << '(' << cells[i][j].getX() << ',' << cells[i][j].getY() << ')';
+				headSep = ",";
+			}
+			else if(cells[i][j].getState() == wire_cell::TAIL){
+				tailStream << tailSep << '(' << cells[i][j].getX() << ',' << cells[i][j].getY() << ')';
+				tailSep = ",";
+			}
+			else if(cells[i][j].getState() == wire_cell::WIRE){
+				wireStream << wireSep << '(' << cells[i][j].getX() << ',' << cells[i][j].getY() << ')';
+				wireSep = ",";
+			}
+		}
+	}
+	wireStream << ";";
+	tailStream << ";";
+	headStream << ";";
+	sstm << wireStream.str() << tailStream.str() << headStream.str();
+	sstm << "};};";
+	return sstm.str();
 }
 void wire_board::updateTerrain(int xhigh, int xlow, int yhigh, int ylow){
 

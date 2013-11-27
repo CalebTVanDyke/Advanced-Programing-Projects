@@ -11,6 +11,9 @@
 using namespace std;
 
 void displayHelp();
+std::vector<std::vector<Tile*> > drawLife(QGridLayout * grid, life_board* gameBoard, int cellSize);
+std::vector<std::vector<Tile*> > drawWire(QGridLayout * grid, life_board* gameBoard, int cellSize);
+
 
 int main(int argc, char *argv[])
 {
@@ -78,42 +81,13 @@ int main(int argc, char *argv[])
 	    grid->setContentsMargins(QMargins(0,0,0,0));
 
 	    std::vector<std::vector<Tile*> > cells;
+	    if(dynamic_cast<life_board*>(gameBoard))
+	    	cells = drawLife(grid, (life_board*) gameBoard, cellSize);
+	    else if(dynamic_cast<wire_board*>(gameBoard)){
+	    	cout << "WIRE BOARD\n";
+	    	return -1;
+	    }
 
-	    int x = 0, y = 0;
-
-
-	    /**
-	    *	This fills the cells vector above with tile objects that are colored with respect to the board
-	    **/
-		for (int j = gameBoard->getWinXMin(); j <= gameBoard->getWinXMax(); ++j)
-		{
-			std::vector<Tile*> row;
-			x = 0;
-			for (int i = gameBoard->getWinYMax(); i >= gameBoard->getWinYMin(); --i)
-			{
-				cell cur;
-				Tile *tile = new Tile();
-				if(i < gameBoard->getYMin() || i > gameBoard->getYMax() || j < gameBoard->getXMin() || j > gameBoard->getXMax()){
-					tile->redraw(qRgba(((life_board*)gameBoard)->getDeadColor().red, ((life_board*)gameBoard)->getDeadColor().green, ((life_board*)gameBoard)->getDeadColor().blue, 255));
-				}else{
-					cur = ((life_board*)gameBoard)->getCell(j, i);
-				}
-				if(cur.isAlive()){
-					tile->redraw(qRgba(((life_board*)gameBoard)->getAliveColor().red, ((life_board*)gameBoard)->getAliveColor().green, ((life_board*)gameBoard)->getAliveColor().blue, 255));
-				}else{
-					tile->redraw(qRgba(((life_board*)gameBoard)->getDeadColor().red, ((life_board*)gameBoard)->getDeadColor().green, ((life_board*)gameBoard)->getDeadColor().blue, 255));
-				}
-				tile->setCellSize(cellSize);
-
-				row.push_back(tile);
-				grid->addWidget(tile,x,y);
-				grid->setColumnStretch(x,0);
-				x++;
-			}
-			cells.push_back(row);
-			grid->setRowStretch(y,0);
-			y++;
-		}
 		holder.setLayout(grid);
 
 		window.setWidget(&holder);
@@ -124,6 +98,45 @@ int main(int argc, char *argv[])
 	}catch(int e){
 		return -1;
 	}
+}
+std::vector<std::vector<Tile*> > drawLife(QGridLayout * grid, life_board* gameBoard, int cellSize){
+
+    std::vector<std::vector<Tile*> > cells;
+
+    int x = 0, y = 0;
+    /**
+    *	This fills the cells vector above with tile objects that are colored with respect to the board
+    **/
+	for (int j = gameBoard->getWinXMin(); j <= gameBoard->getWinXMax(); ++j)
+	{
+		std::vector<Tile*> row;
+		x = 0;
+		for (int i = gameBoard->getWinYMax(); i >= gameBoard->getWinYMin(); --i)
+		{
+			cell cur;
+			Tile *tile = new Tile();
+			if(i < gameBoard->getYMin() || i > gameBoard->getYMax() || j < gameBoard->getXMin() || j > gameBoard->getXMax()){
+				tile->redraw(qRgba(((life_board*)gameBoard)->getDeadColor().red, ((life_board*)gameBoard)->getDeadColor().green, ((life_board*)gameBoard)->getDeadColor().blue, 255));
+			}else{
+				cur = ((life_board*)gameBoard)->getCell(j, i);
+			}
+			if(cur.isAlive()){
+				tile->redraw(qRgba(((life_board*)gameBoard)->getAliveColor().red, ((life_board*)gameBoard)->getAliveColor().green, ((life_board*)gameBoard)->getAliveColor().blue, 255));
+			}else{
+				tile->redraw(qRgba(((life_board*)gameBoard)->getDeadColor().red, ((life_board*)gameBoard)->getDeadColor().green, ((life_board*)gameBoard)->getDeadColor().blue, 255));
+			}
+			tile->setCellSize(cellSize);
+
+			row.push_back(tile);
+			grid->addWidget(tile,x,y);
+			grid->setColumnStretch(x,0);
+			x++;
+		}
+		cells.push_back(row);
+		grid->setRowStretch(y,0);
+		y++;
+	}
+	return cells;
 }
 void displayHelp(){
 	cout << "life-gui\n";
