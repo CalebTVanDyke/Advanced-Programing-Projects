@@ -80,12 +80,11 @@ public:
 	virtual void updateTerrain(int xhigh, int xlow, int yhigh, int ylow);
 
 	inline wire_cell getCell(int x, int y) { return cells[computeY(y)][computeX(x)]; }
-private:
+protected:
 	/**
 	*	Initializes the cells of the board to contain the x, y coordinate they are pointing too
 	**/
 	virtual void initializeCells();
-protected:
 	/**
 	*	Frees all cells of the board called by the destructor and whenever the terrain is updated to new dimensions
 	**/

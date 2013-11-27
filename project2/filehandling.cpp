@@ -41,6 +41,8 @@ wire_chars* getWireChars(string fileInfo);
 life_chars* getEleChars(string fileInfo);
 void getWireColors(string fileInfo, wire_board* gameBoard);
 void initWire(string fileInfo, wire_board* gameBoard);
+void getEleColors(string fileInfo, ele_board* gameBoard);
+void initEle(string fileInfo, ele_board* gameBoard);
 
 board* stringToBoard(string fileInfo){
 
@@ -95,12 +97,109 @@ board* stringToBoard(string fileInfo){
 		getWireColors(fileInfo, (wire_board*) gameBoard);
 		initWire(fileInfo, (wire_board*) gameBoard);
 	}
+	else if(isEle){
+		gameBoard = new ele_board(name, ter->xhigh, ter->xlow, ter->yhigh, ter->ylow, l_chars->alive, l_chars->dead);
+		delete l_chars;
+		getEleColors(fileInfo, (ele_board*) gameBoard);
+		initEle(fileInfo, (ele_board*) gameBoard);
+	}
 
 	getWindow(fileInfo, gameBoard);
 
 	delete ter;
 
 	return gameBoard;
+}
+void getEleColors(string fileInfo, ele_board* gameBoard){
+	boost::smatch container;
+	boost::regex reColors("Colors[^}]+\\}");
+
+	int r, g, b;
+
+	boost::regex_search(fileInfo, container, reColors);
+
+	if(container.size() <= 0 || container[0].str() == ""){
+		cerr << "Color portions not found default values will be used." << '\n';
+		gameBoard->setAliveColor(255, 255, 255);
+		gameBoard->setDeadColor(64, 64, 64);
+		return;
+	}
+
+	string colors = container[0].str();
+	//HEAD COLOR
+	const char * oneLoc = strstr(colors.c_str(), "One=");
+	if(oneLoc){
+		if((sscanf(oneLoc, "One=(%d, %d, %d)", &r, &g, &b)) != 3){
+			cerr << "Error reading One values default will be used.\n";
+			gameBoard->setAliveColor(64, 64, 64);
+		}
+		else if(r < 0 || r > 255 || b < 0 || b > 255 || g < 0 || g > 255){
+			cerr << "RBG value for One in Colors portion was not valid, default will be used" << '\n';
+			gameBoard->setAliveColor(64, 64, 64);
+		}else{
+			gameBoard->setAliveColor(r, g, b);
+		}
+	}else{
+		cerr << "One in Colors not found default will be used" << '\n';
+		gameBoard->setAliveColor(64, 64, 64);
+	}
+
+	const char * zeroLoc = strstr(colors.c_str(), "Zero=");
+	if(zeroLoc){
+		if((sscanf(zeroLoc, "Zero=(%d, %d, %d)", &r, &g, &b)) != 3){
+			cerr << "Error reading Zero values default will be used.\n";
+			gameBoard->setDeadColor(255, 255, 255);
+		}
+		else if(r < 0 || r > 255 || b < 0 || b > 255 || g < 0 || g > 255){
+			cerr << "RBG value for Zero in Colors portion was not valid, default will be used" << '\n';
+			gameBoard->setDeadColor(255, 255, 255);
+		}else{
+			gameBoard->setDeadColor(r, g, b);
+		}
+	}else{
+		cerr << "Zero in Colors not found default will be used" << '\n';
+		gameBoard->setDeadColor(255, 255, 255);
+	}
+
+	
+}
+void initEle(string fileInfo, ele_board* gameBoard){
+	boost::smatch container;
+
+	boost::regex reInitial("Initial[^}]+\\}");
+	boost::regex reOne("One[^;]+;");
+	boost::regex reParens("\\([^\\)]+\\)");
+
+	boost::regex_search(fileInfo, container, reInitial);
+
+	if(container.size() != 1){
+		cerr << "Error with Initial portion\n";
+		throw -1;
+	}
+	string initial = container.str();
+	boost::regex_search(initial, container, reOne);
+	string one = container.str();
+
+
+	boost::regex_iterator<string::iterator> regit (one.begin(), one.end(), reParens);
+	boost::regex_iterator<string::iterator> end;
+
+	while(regit != end){
+		int xc;
+		int yc;
+		if((sscanf(regit->str().c_str(), "(%d, %d)", &xc, &yc)) != 2){
+			cerr << "Error reading X, Y coordinate" << '\n';
+			regit++;
+			continue;
+		}
+		if(xc < gameBoard->getXMin() || xc > gameBoard->getXMax() || yc < gameBoard->getYMin() || yc > gameBoard->getYMax()){
+			cerr << "Coordinate in " << regit->str() << " was not in range of the terrain." << '\n';
+			regit++;
+			continue;
+		}
+		gameBoard->setAlive(xc, yc);
+		regit++;
+	}
 }
 void initWire(string fileInfo, wire_board* gameBoard){
 
@@ -369,9 +468,6 @@ life_chars* getEleChars(string fileInfo){
 	life_chars * chars = new life_chars;
 	chars->alive = (char) one;
 	chars->dead = (char) zero;
-
-	cout << one << '\n';
-	cout << zero << '\n';
 
 	return chars;
 }

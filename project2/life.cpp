@@ -6,6 +6,7 @@
 #include "filehandling.h"
 #include <ctype.h>
 #include <string.h>
+#include "ele_board.h"
 
 using namespace std;
 

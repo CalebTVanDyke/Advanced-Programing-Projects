@@ -79,7 +79,7 @@ public:
 	virtual void updateTerrain(int xhigh, int xlow, int yhigh, int ylow) = 0;
 	int getWinHeight();
 	int getWinWidth();
-private:
+protected:
 	/**
 	*	Initializes the cells of the board to contain the x, y coordinate they are pointing too
 	**/

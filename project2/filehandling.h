@@ -3,6 +3,7 @@
 
 #include "life_board.h"
 #include "wire_board.h"
+#include "ele_board.h"
 #include "board.h"
 #include <string>
 
