@@ -173,17 +173,17 @@ void GameDialog::redraw(){
 }
 void GameDialog::redrawWire(){
 	wire_board * gameBoard = (wire_board*) curBoard;
+	int x = 0;
 	for (int j = gameBoard->getWinXMin(); j <= gameBoard->getWinXMax(); ++j)
 	{
-		std::vector<Tile*> row;
+		int y = 0;
 		for (int i = gameBoard->getWinYMax(); i >= gameBoard->getWinYMin(); --i)
 		{
-			int x = gameBoard->computeX(j);
-			int y = gameBoard->computeY(i);
 			wire_cell cur;
 			tiles[x][y]->setCellSize(cellSize);
 			if(i < gameBoard->getYMin() || i > gameBoard->getYMax() || j < gameBoard->getXMin() || j > gameBoard->getXMax()){
 				tiles[x][y]->redraw(qRgba(gameBoard->getEmptyColor().red, gameBoard->getEmptyColor().green, gameBoard->getEmptyColor().blue, 255));
+				y++;
 				continue;
 			}else{
 				cur = gameBoard->getCell(j, i);
@@ -202,22 +202,24 @@ void GameDialog::redrawWire(){
 			}else{
 				tiles[x][y]->redraw(qRgba(gameBoard->getEmptyColor().red, gameBoard->getEmptyColor().green, gameBoard->getEmptyColor().blue, 255));
 			}
+			y++;
 		}
+		x++;
 	}
 }
 void GameDialog::redrawLife(){
 	life_board * gameBoard = (life_board*) curBoard;
+	int x = 0;
 	for (int j = gameBoard->getWinXMin(); j <= gameBoard->getWinXMax(); ++j)
 	{
-		std::vector<Tile*> row;
-		int x = gameBoard->computeX(j);
+		int y = 0;
 		for (int i = gameBoard->getWinYMax(); i >= gameBoard->getWinYMin(); --i)
 		{
-			int y = gameBoard->computeY(i);
 			cell cur;
 			tiles[x][y]->setCellSize(cellSize);
 			if(i < gameBoard->getYMin() || i > gameBoard->getYMax() || j < gameBoard->getXMin() || j > gameBoard->getXMax()){
 				tiles[x][y]->redraw(qRgba(gameBoard->getDeadColor().red, gameBoard->getDeadColor().green, gameBoard->getDeadColor().blue, 255));
+				y++;
 				continue;
 			}else{
 				cur = gameBoard->getCell(j, i);
@@ -227,7 +229,9 @@ void GameDialog::redrawLife(){
 			}else{
 				tiles[x][y]->redraw(qRgba(gameBoard->getDeadColor().red, gameBoard->getDeadColor().green, gameBoard->getDeadColor().blue, 255));
 			}
+			y++;
 		}
+		x++;
 	}
 }
 void GameDialog::updateGen(){

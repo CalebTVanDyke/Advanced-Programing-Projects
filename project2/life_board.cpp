@@ -24,6 +24,8 @@ board* life_board::Clone(){
 			b->cells[i][j].setAlive(cells[i][j].isAlive());
 		}
 	}
+	b->setWinHeight(winYmax, winYmin);
+	b->setWinWidth(winXmax, winXmin);
 	b->setAliveColor(aliveColor.red, aliveColor.green, aliveColor.blue);
 	b->setDeadColor(deadColor.red, deadColor.green, deadColor.blue);
 	return b;
@@ -110,6 +112,8 @@ std::string life_board::toString(){
 		for(int j = winXmin; j <= winXmax; ++j){
 			if(i < ymin || i > ymax || j < xmin || j > xmax){
 				theBoard[si] = deadChar;
+				++si;
+				continue;
 			}
 			else if(cells[computeY(i)][computeX(j)].isAlive()){
 				theBoard[si] = aliveChar; 

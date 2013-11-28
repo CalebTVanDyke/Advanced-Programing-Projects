@@ -24,7 +24,8 @@ board* wire_board::Clone(){
 	b->setEmptyColor(emptyColor.red, emptyColor.green, emptyColor.blue);
 	b->setTailColor(tailColor.red, tailColor.green, tailColor.blue);
 	b->setWireColor(wireColor.red, wireColor.green, wireColor.blue);
-
+	b->setWinHeight(winYmax, winYmin);
+	b->setWinWidth(winXmax, winXmin);
 	for (int i = 0; i < height; ++i){
 		for(int j = 0; j < width; ++j){
 			b->cells[i][j].setState(cells[i][j].getState());
@@ -91,6 +92,8 @@ std::string wire_board::toString(){
 		for(int j = winXmin; j <= winXmax; ++j){
 			if(i < ymin || i > ymax || j < xmin || j > xmax){
 				theBoard[si] = emptyChar;
+				++si;
+				continue;
 			}
 			int x = computeX(j);
 			int y = computeY(i);
@@ -106,12 +109,6 @@ std::string wire_board::toString(){
 				theBoard[si] = emptyChar;
 			}
 			++si;
-			if(y >= height){
-				std::cout << "y out of bounds " << y << '\n';
-			}
-			if(x >= width){
-				std::cout << "x out of bounds " << x << '\n';
-			}
 		}
 		theBoard[si] = '\n';
 		++si;
@@ -170,6 +167,31 @@ std::string wire_board::toFile(){
 	return sstm.str();
 }
 void wire_board::updateTerrain(int xhigh, int xlow, int yhigh, int ylow){
+
+	wire_cell **newCells = new wire_cell*[yhigh - ylow + 1];
+	for (int i = 0; i < yhigh - ylow + 1; ++i){
+		newCells[i] = new wire_cell[xhigh - xlow + 1];
+	}
+	xmax = xhigh;
+	xmin = xlow;
+	ymax = yhigh;
+	ymin = ylow;
+
+	for (int i = 0; i < height; ++i){
+		for(int j = 0; j < width; ++j){
+			wire_cell cur = cells[i][j];
+			newCells[computeY(cur.getY())][computeX(cur.getX())].setState(cur.getState());
+		}
+	}
+	freeCells();
+	cells = newCells;
+	width = xhigh - xlow + 1;
+	height = yhigh - ylow + 1;
+	winXmin = xlow;
+	winXmax = xhigh;
+	winYmin = ylow;
+	winYmax = yhigh;
+	initializeCells();
 
 }
 void wire_board::initializeCells(){

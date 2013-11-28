@@ -19,6 +19,8 @@ board* ele_board::Clone(){
 	}
 	b->setAliveColor(aliveColor.red, aliveColor.green, aliveColor.blue);
 	b->setDeadColor(deadColor.red, deadColor.green, deadColor.blue);
+	b->setWinHeight(winYmax, winYmin);
+	b->setWinWidth(winXmax, winXmin);
 	return b;
 }
 

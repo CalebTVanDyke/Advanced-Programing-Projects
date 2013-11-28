@@ -20,7 +20,7 @@ Tile::Tile(QWidget *parent)
 	setLayout(layout);
 
 	layout->setContentsMargins(0,0,0,0);
-
+	setLineWidth(1);
     redraw(qRgba(0, 0, 0, 255));
 
 }
