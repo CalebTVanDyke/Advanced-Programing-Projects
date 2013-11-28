@@ -25,6 +25,8 @@ public:
 	*	Returns a string containing the board converted to a life file
 	**/
 	virtual std::string toFile();
+
+	virtual board* Clone();
 };
 
 

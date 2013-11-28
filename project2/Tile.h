@@ -19,6 +19,7 @@ public:
 	*	Sets the size of each cell
 	**/
 	void setCellSize(int size);
+	int getCellSize() { return cellSize; }
 	~Tile();
 
  private:

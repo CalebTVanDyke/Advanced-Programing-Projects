@@ -25,7 +25,7 @@ board* life_board::Clone(){
 		}
 	}
 	b->setAliveColor(aliveColor.red, aliveColor.green, aliveColor.blue);
-	b->setDeadColor(deadColor.red, deadColor.green, aliveColor.blue);
+	b->setDeadColor(deadColor.red, deadColor.green, deadColor.blue);
 	return b;
 }
 void life_board::updateOne(){

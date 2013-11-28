@@ -10,6 +10,18 @@ ele_board::ele_board(std::string name, int xmax, int xmin, int ymax, int ymin, c
 ele_board::~ele_board(){
 
 }
+board* ele_board::Clone(){
+	ele_board* b = new ele_board(name, xmax, xmin, ymax, ymin, aliveChar, deadChar, rule);
+	for (int i = 0; i < height; ++i){
+		for(int j = 0; j < width; ++j){
+			b->cells[i][j].setAlive(cells[i][j].isAlive());
+		}
+	}
+	b->setAliveColor(aliveColor.red, aliveColor.green, aliveColor.blue);
+	b->setDeadColor(deadColor.red, deadColor.green, deadColor.blue);
+	return b;
+}
+
 void ele_board::updateOne(){
 	cell ** newCells;
 	newCells = new cell*[height];

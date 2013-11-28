@@ -35,6 +35,8 @@ void Tile::setCellSize(int size){
 	cellSize = size;
 	if(size < 4){
 		setLineWidth(0);
+	}else{
+		setLineWidth(1);
 	}
 	rect->setMinimumSize(cellSize, cellSize);
 }

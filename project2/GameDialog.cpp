@@ -4,13 +4,19 @@
 #include "cell.h"
 #include "wire_cell.h"
 #include <stdlib.h>
+#include <string>
+#include <sstream>
 
-GameDialog::GameDialog(QApplication* app, board* gameBoard, QGridLayout * grid, std::vector<std::vector<Tile*> > cells, int cellSize){
+
+GameDialog::GameDialog(QApplication* app, board* gameBoard, QWidget * holder, std::vector<std::vector<Tile*> > cells, int cellSize){
 	this->cellSize = cellSize;
 	tiles = cells;
 	curBoard = gameBoard;
 	initialBoard = gameBoard->Clone();
-	this->grid = grid;
+	grid = (QGridLayout *)(holder->layout());
+	this->holder = holder;
+
+	gen = 0;
 
 	this->app = app;
 	setWindowTitle("Controlls");
@@ -19,9 +25,13 @@ GameDialog::GameDialog(QApplication* app, board* gameBoard, QGridLayout * grid, 
 	sizeSlider = new QSlider(Qt::Horizontal);
 	sizeSpinBox = new QSpinBox;
 
-	timeLabel = new QLabel("Delay: ");
+	timeLabel = new QLabel("Delay (ms): ");
 	timeSlider = new QSlider(Qt::Horizontal);
 	timeSpinBox = new QSpinBox;
+
+	std::stringstream sstm; 
+	sstm << "Generation: " << gen;
+	genLabel = new QLabel(QString(sstm.str().c_str()));
 
 	quitButton = new QPushButton("Quit");
 	restartButton = new QPushButton("Restart");
@@ -30,6 +40,7 @@ GameDialog::GameDialog(QApplication* app, board* gameBoard, QGridLayout * grid, 
 	
 	topLayout = new QHBoxLayout;
 	midLayout = new QHBoxLayout;
+	genLayout = new QHBoxLayout;
 	botLayout = new QHBoxLayout;
 	mainLayout = new QVBoxLayout;
 
@@ -40,8 +51,11 @@ GameDialog::GameDialog(QApplication* app, board* gameBoard, QGridLayout * grid, 
 
 	QObject::connect(sizeSlider, SIGNAL(valueChanged(int)),
 		sizeSpinBox, SLOT(setValue(int)));
-	
+
 	sizeSlider->setSliderPosition(cellSize);
+
+	QObject::connect(sizeSlider, SIGNAL(valueChanged(int)),
+		this, SLOT(adjustSize()));
 
 	QObject::connect(sizeSpinBox, SIGNAL(valueChanged(int)),
 		sizeSlider, SLOT(setValue(int)));
@@ -51,6 +65,8 @@ GameDialog::GameDialog(QApplication* app, board* gameBoard, QGridLayout * grid, 
 
 	QObject::connect(timeSpinBox, SIGNAL(valueChanged(int)),
 		timeSlider, SLOT(setValue(int)));
+
+	timeSlider->setSliderPosition(1000);
 
 	QObject::connect(quitButton, SIGNAL(clicked()),
 		this, SLOT(quit()));
@@ -64,6 +80,12 @@ GameDialog::GameDialog(QApplication* app, board* gameBoard, QGridLayout * grid, 
 	QObject::connect(stepButton, SIGNAL(clicked()),
 		this, SLOT(step()));
 
+	timer = new QTimer;
+
+	QObject::connect(timer, SIGNAL(timeout()),
+		this, SLOT(step()));
+
+
 	topLayout->addWidget(sizeLabel);
 	topLayout->addWidget(sizeSpinBox);
 	topLayout->addWidget(sizeSlider);
@@ -72,6 +94,8 @@ GameDialog::GameDialog(QApplication* app, board* gameBoard, QGridLayout * grid, 
 	midLayout->addWidget(timeSpinBox);
 	midLayout->addWidget(timeSlider);
 
+	genLayout->addWidget(genLabel);
+
 	botLayout->addWidget(quitButton);
 	botLayout->addWidget(restartButton);
 	botLayout->addWidget(playButton);
@@ -79,6 +103,7 @@ GameDialog::GameDialog(QApplication* app, board* gameBoard, QGridLayout * grid, 
 
 	mainLayout->addLayout(topLayout);
 	mainLayout->addLayout(midLayout);
+	mainLayout->addLayout(genLayout);
 	mainLayout->addLayout(botLayout);
 	setLayout(mainLayout);
 }
@@ -97,19 +122,46 @@ GameDialog::~GameDialog(){
 	delete restartButton;
 	delete stepButton;
 	delete quitButton;
+	delete genLabel;
+	delete genLayout;
 }
 void GameDialog::play(){
-	std::cout << "PLAY" << '\n';
+	if(timer->isActive()){
+		timer->stop();
+		playButton->setText("Play");
+		return;
+	}
+	timer->setInterval(timeSlider->value());
+	timer->start();
+	playButton->setText("Stop");
 }
 void GameDialog::restart(){
-	std::cout << "RESTART" << '\n';
+	if(timer->isActive()){
+		timer->stop();
+		playButton->setText("Play");
+	}
+	delete curBoard;
+	curBoard = initialBoard->Clone();
+	gen = 0;
+	updateGen();
+	redraw();
 }
 void GameDialog::step(){
 	curBoard->updateOne();
 	redraw();
+	gen++;
+	updateGen();
 }
 void GameDialog::quit(){
 	exit(0);
+}
+void GameDialog::adjustSize(){
+	cellSize = sizeSlider->value();
+	holder->setMinimumHeight(cellSize * curBoard->getHeight());
+	holder->setMinimumWidth(cellSize * curBoard->getWidth());
+	holder->setMaximumHeight(cellSize * curBoard->getHeight());
+	holder->setMaximumWidth(cellSize * curBoard->getWidth());
+	redraw();
 }
 void GameDialog::redraw(){
 	if(dynamic_cast<life_board*>(curBoard)){
@@ -129,6 +181,7 @@ void GameDialog::redrawWire(){
 			int x = gameBoard->computeX(j);
 			int y = gameBoard->computeY(i);
 			wire_cell cur;
+			tiles[x][y]->setCellSize(cellSize);
 			if(i < gameBoard->getYMin() || i > gameBoard->getYMax() || j < gameBoard->getXMin() || j > gameBoard->getXMax()){
 				tiles[x][y]->redraw(qRgba(gameBoard->getEmptyColor().red, gameBoard->getEmptyColor().green, gameBoard->getEmptyColor().blue, 255));
 				continue;
@@ -157,11 +210,12 @@ void GameDialog::redrawLife(){
 	for (int j = gameBoard->getWinXMin(); j <= gameBoard->getWinXMax(); ++j)
 	{
 		std::vector<Tile*> row;
+		int x = gameBoard->computeX(j);
 		for (int i = gameBoard->getWinYMax(); i >= gameBoard->getWinYMin(); --i)
 		{
-			int x = gameBoard->computeX(j);
 			int y = gameBoard->computeY(i);
 			cell cur;
+			tiles[x][y]->setCellSize(cellSize);
 			if(i < gameBoard->getYMin() || i > gameBoard->getYMax() || j < gameBoard->getXMin() || j > gameBoard->getXMax()){
 				tiles[x][y]->redraw(qRgba(gameBoard->getDeadColor().red, gameBoard->getDeadColor().green, gameBoard->getDeadColor().blue, 255));
 				continue;
@@ -175,4 +229,9 @@ void GameDialog::redrawLife(){
 			}
 		}
 	}
+}
+void GameDialog::updateGen(){
+	std::stringstream sstm; 
+	sstm << "Generation: " << gen;
+	genLabel->setText(sstm.str().c_str());
 }

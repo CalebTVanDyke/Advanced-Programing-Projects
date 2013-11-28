@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
 
 		window.setWidget(&holder);
 
-		GameDialog dialog(&app, gameBoard, grid, cells, cellSize);
+		GameDialog dialog(&app, gameBoard, &holder, cells, cellSize);
 
 		dialog.show();
 
