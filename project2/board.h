@@ -33,6 +33,8 @@ public:
 	board(std::string name, int xmax, int xmin, int ymax, int ymin);
 	virtual ~board();
 
+	virtual board* Clone() = 0;
+
 	virtual void updateOne() = 0;
 	/**
 	* Updates the cells N generations

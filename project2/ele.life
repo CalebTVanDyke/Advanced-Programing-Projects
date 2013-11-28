@@ -6,7 +6,7 @@ Rule = 30;
 
 Terrain = {
 
-Xrange = -200..200; Yrange = -200..0;
+Xrange = -20..20; Yrange = -20..0;
 
 };
 

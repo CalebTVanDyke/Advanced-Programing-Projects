@@ -2,6 +2,9 @@
 #include <QGridLayout>
 #include <QScrollArea>
 #include <QWidget>
+#include <QHBoxLayout>
+#include <QWidget>
+#include "GameDialog.h"
 #include "life_board.h"
 #include "cell.h"
 #include <string>
@@ -10,6 +13,7 @@
 #include "wire_cell.h"
 #include "wire_board.h"
 #include "ele_board.h"
+
 
 using namespace std;
 
@@ -60,6 +64,8 @@ int main(int argc, char *argv[])
 
 	std::string fileInfo = "";
 	try{
+		bool isLife = false;;
+		bool isWire = false;
 		if(fromFile)
 			fileInfo = getStringFromFile(argv[argc - 1]);
 		else
@@ -84,9 +90,12 @@ int main(int argc, char *argv[])
 		grid->setContentsMargins(QMargins(0,0,0,0));
 
 		std::vector<std::vector<Tile*> > cells;
-		if(dynamic_cast<life_board*>(gameBoard))
+		if(dynamic_cast<life_board*>(gameBoard)){
+			isLife = true;
 			cells = drawLife(grid, (life_board*) gameBoard, cellSize);
+		}
 		else if(dynamic_cast<wire_board*>(gameBoard)){
+			isWire = true;
 			cells = drawWire(grid, (wire_board*) gameBoard, cellSize);
 		}else{
 			return -1;
@@ -95,6 +104,10 @@ int main(int argc, char *argv[])
 		holder.setLayout(grid);
 
 		window.setWidget(&holder);
+
+		GameDialog dialog(&app, gameBoard, grid, cells, cellSize);
+
+		dialog.show();
 
 		window.show();
 

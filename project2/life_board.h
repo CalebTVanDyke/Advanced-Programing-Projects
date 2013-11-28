@@ -22,6 +22,8 @@ public:
 	life_board(const board& b);
 	virtual ~life_board();
 
+	virtual board* Clone();
+
 	void operator=(life_board b);
 	/**
 	* Updates the cells one generation

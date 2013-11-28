@@ -17,6 +17,17 @@ life_board::life_board(std::string name, int xmax, int xmin, int ymax, int ymin,
 life_board::~life_board(){
 	freeCells();
 }
+board* life_board::Clone(){
+	life_board* b = new life_board(name, xmax, xmin, ymax, ymin, aliveChar, deadChar);
+	for (int i = 0; i < height; ++i){
+		for(int j = 0; j < width; ++j){
+			b->cells[i][j].setAlive(cells[i][j].isAlive());
+		}
+	}
+	b->setAliveColor(aliveColor.red, aliveColor.green, aliveColor.blue);
+	b->setDeadColor(deadColor.red, deadColor.green, aliveColor.blue);
+	return b;
+}
 void life_board::updateOne(){
 	int neighbors;
 	std::vector<std::pair<int, int> > update;

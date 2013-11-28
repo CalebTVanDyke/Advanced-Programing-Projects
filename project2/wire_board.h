@@ -27,6 +27,8 @@ public:
 	wire_board(const board& b);
 	virtual ~wire_board();
 
+	virtual board* Clone();
+
 	void operator=(wire_board b);
 	/**
 	* Updates the cells one generation

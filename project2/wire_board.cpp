@@ -18,6 +18,20 @@ wire_board::wire_board(std::string name, int xmax, int xmin, int ymax, int ymin,
 wire_board::~wire_board(){
 	freeCells();
 }
+board* wire_board::Clone(){
+	wire_board* b = new wire_board(name, xmax, xmin, ymax, ymin, emptyChar, headChar, tailChar, wireChar);
+	b->setHeadColor(headColor.red, headColor.green, headColor.blue);
+	b->setEmptyColor(emptyColor.red, emptyColor.green, emptyColor.blue);
+	b->setTailColor(tailColor.red, tailColor.green, tailColor.blue);
+	b->setWireColor(wireColor.red, wireColor.green, wireColor.blue);
+
+	for (int i = 0; i < height; ++i){
+		for(int j = 0; j < width; ++j){
+			b->cells[i][j].setState(cells[i][j].getState());
+		}
+	}
+	return b;
+}
 void wire_board::updateOne(){
 	wire_cell ** newCells;
 	newCells = new wire_cell*[height];
