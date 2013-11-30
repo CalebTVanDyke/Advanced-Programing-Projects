@@ -6,7 +6,7 @@
 #include <QWidget>
 #include "GameDialog.h"
 #include "life_board.h"
-#include "cell.h"
+#include "life_cell.h"
 #include <string>
 #include "filehandling.h"
 #include "Tile.h"
@@ -26,6 +26,7 @@ int main(int argc, char *argv[])
 {
 	int fromFile = 0;
 	int cellSize = 10;
+	int useDialog = 0;
 	for (int i = 1; i < argc; ++i)
 	{
 		if('-' == argv[i][0]){
@@ -51,6 +52,9 @@ int main(int argc, char *argv[])
 					displayHelp();
 					return 0;
 				}
+				else if('c' == argv[i][j]){
+					useDialog = 1;
+				}
 
 			}
 		}else{
@@ -64,8 +68,6 @@ int main(int argc, char *argv[])
 
 	std::string fileInfo = "";
 	try{
-		bool isLife = false;;
-		bool isWire = false;
 		if(fromFile)
 			fileInfo = getStringFromFile(argv[argc - 1]);
 		else
@@ -91,11 +93,9 @@ int main(int argc, char *argv[])
 
 		std::vector<std::vector<Tile*> > cells;
 		if(dynamic_cast<life_board*>(gameBoard)){
-			isLife = true;
 			cells = drawLife(grid, (life_board*) gameBoard, cellSize);
 		}
 		else if(dynamic_cast<wire_board*>(gameBoard)){
-			isWire = true;
 			cells = drawWire(grid, (wire_board*) gameBoard, cellSize);
 		}else{
 			return -1;
@@ -103,12 +103,11 @@ int main(int argc, char *argv[])
 
 		holder.setLayout(grid);
 
-		window.setWidget(&holder);
-
 		GameDialog dialog(&app, gameBoard, &holder, cells, cellSize);
-
-		dialog.show();
-
+		window.setWidget(&holder);
+		if(useDialog){
+			dialog.show();
+		}
 		window.show();
 
 		return app.exec();
@@ -122,6 +121,7 @@ std::vector<std::vector<Tile*> > drawLife(QGridLayout * grid, life_board* gameBo
     int x = 0, y = 0;
     /**
     *	This fills the cells vector above with tile objects that are colored with respect to the board
+    *	For the life game
     **/
 	for (int j = gameBoard->getWinXMin(); j <= gameBoard->getWinXMax(); ++j)
 	{
@@ -129,7 +129,7 @@ std::vector<std::vector<Tile*> > drawLife(QGridLayout * grid, life_board* gameBo
 		x = 0;
 		for (int i = gameBoard->getWinYMax(); i >= gameBoard->getWinYMin(); --i)
 		{
-			cell cur;
+			life_cell cur;
 			Tile *tile = new Tile();
 			if(i < gameBoard->getYMin() || i > gameBoard->getYMax() || j < gameBoard->getXMin() || j > gameBoard->getXMax()){
 				tile->redraw(qRgba(gameBoard->getDeadColor().red, gameBoard->getDeadColor().green, gameBoard->getDeadColor().blue, 255));
@@ -161,6 +161,7 @@ std::vector<std::vector<Tile*> > drawWire(QGridLayout * grid, wire_board* gameBo
     int x = 0, y = 0;
     /**
     *	This fills the cells vector above with tile objects that are colored with respect to the board
+    *   For wire world game
     **/
 	for (int j = gameBoard->getWinXMin(); j <= gameBoard->getWinXMax(); ++j)
 	{

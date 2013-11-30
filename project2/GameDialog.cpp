@@ -1,7 +1,7 @@
 #include "GameDialog.h"
 
 #include <iostream>
-#include "cell.h"
+#include "life_cell.h"
 #include "wire_cell.h"
 #include <stdlib.h>
 #include <string>
@@ -215,7 +215,7 @@ void GameDialog::redrawLife(){
 		int y = 0;
 		for (int i = gameBoard->getWinYMax(); i >= gameBoard->getWinYMin(); --i)
 		{
-			cell cur;
+			life_cell cur;
 			tiles[x][y]->setCellSize(cellSize);
 			if(i < gameBoard->getYMin() || i > gameBoard->getYMax() || j < gameBoard->getXMin() || j > gameBoard->getXMax()){
 				tiles[x][y]->redraw(qRgba(gameBoard->getDeadColor().red, gameBoard->getDeadColor().green, gameBoard->getDeadColor().blue, 255));

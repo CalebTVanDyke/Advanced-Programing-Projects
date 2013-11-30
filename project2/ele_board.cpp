@@ -25,10 +25,10 @@ board* ele_board::Clone(){
 }
 
 void ele_board::updateOne(){
-	cell ** newCells;
-	newCells = new cell*[height];
+	life_cell ** newCells;
+	newCells = new life_cell*[height];
 	for(int i = 0; i < height; ++i){
-		newCells[i] = new cell[width];
+		newCells[i] = new life_cell[width];
 	}
 
 	for(int i = 0; i < height; ++i){

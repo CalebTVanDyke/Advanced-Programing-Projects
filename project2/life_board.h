@@ -1,7 +1,7 @@
 #ifndef LIFE_BOARD_H
 #define LIFE_BOARD_H 1
 
-#include "cell.h"
+#include "life_cell.h"
 #include "board.h"
 #include <string>
 #include <iostream>
@@ -15,7 +15,7 @@ protected:
 	char deadChar;
 	color aliveColor;
 	color deadColor;
-	cell** cells;
+	life_cell** cells;
 
 public:
 	life_board(std::string name, int xmax, int xmin, int ymax, int ymin, char aliveChar, char deadChar);
@@ -65,7 +65,7 @@ public:
 	**/
 	virtual void updateTerrain(int xhigh, int xlow, int yhigh, int ylow);
 
-	inline cell getCell(int x, int y) { return cells[computeY(y)][computeX(x)]; }
+	inline life_cell getCell(int x, int y) { return cells[computeY(y)][computeX(x)]; }
 protected:
 	/**
 	*	Initializes the cells of the board to contain the x, y coordinate they are pointing too

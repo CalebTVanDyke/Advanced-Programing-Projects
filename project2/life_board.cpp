@@ -8,9 +8,9 @@ life_board::life_board(std::string name, int xmax, int xmin, int ymax, int ymin,
 {
 	this->aliveChar = aliveChar;
 	this->deadChar = deadChar;
-	cells = new cell*[height];
+	cells = new life_cell*[height];
 	for(int i = 0; i < height; ++i){
-		cells[i] = new cell[width];
+		cells[i] = new life_cell[width];
 	}
 	initializeCells();
 }
@@ -164,9 +164,9 @@ std::string life_board::toFile(){
 }
 void life_board::updateTerrain(int xhigh, int xlow, int yhigh, int ylow){
 
-	cell **newCells = new cell*[yhigh - ylow + 1];
+	life_cell **newCells = new life_cell*[yhigh - ylow + 1];
 	for (int i = 0; i < yhigh - ylow + 1; ++i){
-		newCells[i] = new cell[xhigh - xlow + 1];
+		newCells[i] = new life_cell[xhigh - xlow + 1];
 	}
 	xmax = xhigh;
 	xmin = xlow;
@@ -175,7 +175,7 @@ void life_board::updateTerrain(int xhigh, int xlow, int yhigh, int ylow){
 
 	for (int i = 0; i < height; ++i){
 		for(int j = 0; j < width; ++j){
-			cell curr = cells[i][j];
+			life_cell curr = cells[i][j];
 			if(curr.isAlive()){
 				if(curr.getX() >= xlow && curr.getX() <= xhigh &&
 						curr.getY() >= ylow && curr.getY() <= yhigh){

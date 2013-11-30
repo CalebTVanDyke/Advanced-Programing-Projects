@@ -1,7 +1,6 @@
 #ifndef WIRE_BOARD_H
 #define WIRE_BOARD_H 1
 
-#include "cell.h"
 #include "board.h"
 #include <string>
 #include <iostream>

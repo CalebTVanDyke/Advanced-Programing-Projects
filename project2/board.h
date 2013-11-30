@@ -1,7 +1,6 @@
 #ifndef BOARD_H
 #define BOARD_H 1
 
-#include "cell.h"
 #include <string>
 #include <iostream>
 #include <stdlib.h>
