@@ -20,6 +20,5 @@ SOURCES += life-gui.cpp \
            ele_board.cpp \
            GameDialog.cpp
 
-
 INCLUDEPATH += /usr/include/boost/
 LIBS += "-L/usr/include/boost/" -lboost_regex-mt

@@ -2,6 +2,7 @@
 
 #include <QWidget>
 #include <QFrame>
+#include <QHBoxLayout>
 
 class Tile : public QFrame
 {
@@ -29,7 +30,7 @@ public:
  	*	The rect that is used to color the background
  	**/
  	QWidget* rect;
-
+	QHBoxLayout * layout;
 };
 
 #define TILE_H 1

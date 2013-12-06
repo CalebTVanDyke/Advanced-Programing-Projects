@@ -15,7 +15,7 @@ Tile::Tile(QWidget *parent)
     cellSize = 10;
 	rect->setMinimumSize(cellSize, cellSize);
 
-	QHBoxLayout * layout = new QHBoxLayout;
+	layout = new QHBoxLayout;
 	layout->addWidget(rect);
 	setLayout(layout);
 
@@ -25,6 +25,7 @@ Tile::Tile(QWidget *parent)
 
 }
 Tile::~Tile(){
+	delete layout;
 	delete rect;
 }
 void Tile::redraw(QColor color){

@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <string>
 #include <QGridLayout>
 #include <QScrollArea>
 #include <QWidget>
@@ -7,7 +8,6 @@
 #include "GameDialog.h"
 #include "life_board.h"
 #include "life_cell.h"
-#include <string>
 #include "filehandling.h"
 #include "Tile.h"
 #include "wire_cell.h"
@@ -103,13 +103,13 @@ int main(int argc, char *argv[])
 
 		holder.setLayout(grid);
 
-		GameDialog dialog(&app, gameBoard, &holder, cells, cellSize);
+		GameDialog * dialog = new GameDialog(&app, gameBoard, &holder, cells, cellSize);
 		window.setWidget(&holder);
 		if(useDialog){
-			dialog.show();
+			dialog->show();
 		}
 		window.show();
-
+		
 		return app.exec();
 	}catch(int e){
 		return -1;

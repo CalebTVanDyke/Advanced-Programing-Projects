@@ -3,10 +3,10 @@ all: life life-gui
 tarball: cvandyke.tar.gz
 
 cvandyke.tar.gz: makefile Tile.cpp Tile.h board.cpp board.h life_cell.cpp life_cell.h filehandling.cpp filehandling.h life-gui.cpp life-gui.pro life.cpp 
-	tar -czf cvandyke.targz sample.life makefile Tile.cpp Tile.h board.cpp board.h cell.cpp cell.h filehandling.cpp filehandling.h life-gui.cpp life-gui.pro life.cpp
+	tar -czf cvandyke.targz sample.life makefile Tile.cpp Tile.h board.cpp board.h life_cell.cpp life_cell.h filehandling.cpp filehandling.h life-gui.cpp life-gui.pro life.cpp GameDialog.h GameDialog.cpp wire_board.cpp wire_board.h wire_cell.cpp wire_cell.h wire_board.h life_board.cpp life_board.h ele_board.cpp ele_board.h README.txt
 
 clean:
-	rm -rf GameDialog.o wire_board.o wire_cell.o life_board.o life.o life_cell.o board.o life filehandling.o Grid.o Tile.o life_gui life-gui.o; make -f Makefile clean; rm Makefile
+	rm -rf GameGrid.o GameDialog.o wire_board.o wire_cell.o life_board.o life.o life_cell.o board.o life filehandling.o Grid.o Tile.o life_gui life-gui.o; make -f Makefile clean; rm Makefile
 
 life-gui: board.o life_cell.o Tile.cpp life-gui.cpp filehandling.o life_board.o wire_board.o wire_cell.o ele_board.o
 	qmake-qt4 life-gui.pro; make -f Makefile
