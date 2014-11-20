@@ -1,7 +1,6 @@
-CS229
+Advanced Programing
 =====
-CS229 is our advanced programming techniques course.
-In this course we discuss topics in C and C++.
+Advanced programing is one of our programming courses that focuses on C and C++.
 We cover things such as memory managment and other things that are in the C and C++ language.
 
 Proj1
